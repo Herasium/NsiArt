@@ -208,14 +208,14 @@ class Window():
         width = rect.right
         height = rect.bottom
 
-        # Create a DIB section for direct pixel manipulation
+   
         bitmap_info = BITMAPINFO()
         bitmap_info.bmiHeader.biSize = ct.sizeof(BITMAPINFOHEADER)
         bitmap_info.bmiHeader.biWidth = width
-        bitmap_info.bmiHeader.biHeight = -height  # Negative for top-down bitmap
+        bitmap_info.bmiHeader.biHeight = -height 
         bitmap_info.bmiHeader.biPlanes = 1
-        bitmap_info.bmiHeader.biBitCount = 32  # 32-bit color
-        bitmap_info.bmiHeader.biCompression = 0  # BI_RGB (uncompressed)
+        bitmap_info.bmiHeader.biBitCount = 32  
+        bitmap_info.bmiHeader.biCompression = 0 
         bitmap_info.bmiHeader.biSizeImage = 0
         bitmap_info.bmiHeader.biXPelsPerMeter = 0
         bitmap_info.bmiHeader.biYPelsPerMeter = 0
