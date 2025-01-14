@@ -1,6 +1,7 @@
 from modules.core import Core
 import random
 import time
+from line_profiler import profile
 
 rainbow_colors = [
     0xFF0000, 0xFF3300, 0xFF6600, 0xFF9900, 0xFFCC00, 0xFFFF00, 0xB2FF00, 0x80FF00,
@@ -15,14 +16,18 @@ rainbow_colors = [
 def start(core):
     core.window.SetWindowSize(600,500)
     core.window.Title = "My Super Game"
+    core.data = {"x":0}
 
+@profile
 def update(core):
-    if core.window.ready:
-        core.engine.draw_line(0,0,100,100,value=0xFFFFFF)
-    if core.window.ready:
-        core.window.update()
-    print(core.window.Buffer)
-    time.sleep(10)
+    core.data["x"] += 1
+    core.render.draw_cube(0xFFFFFF,core.render.cube)
+    core.render.rotate_object(core.render.cube, 0.1, (0,1,0))
+    core.render.rotate_object(core.render.cube, 0.01, (0,0,1))
+    core.render.rotate_object(core.render.cube, 0.01, (1,0,0))
+    core.window.update()
+    core.window.clear_buffer()
+
 
 
 core = Core(start=start,update=update)

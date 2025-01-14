@@ -4,6 +4,8 @@ import ctypes as ct
 import ctypes.wintypes as w
 import time
 import threading
+from line_profiler import profile
+
 
 def MAKEINTRESOURCE(x):
     return w.LPCWSTR(x)
@@ -195,12 +197,22 @@ class Window():
         return self.DefWindowProc(hwnd, message, wParam, lParam)
 
     def SetPixelColor(self, x, y, color):
-        self.Buffer[y * self.Size[0] + x] = color 
+        if self.ready:
+            self.Buffer[int(y * self.Size[0] + x)] = color 
 
     def SetWindowSize(self, width, height):
         self.Size = (width,height)
 
+    def clear_buffer(self):
+        if self.ready:
+            self.Buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
+
+
+    @profile
     def update(self):
+        if not self.ready:
+            return
+        
         if self.past_size != self.Size:
             self.past_size = self.Size
             self.SetWindowPos(self.hwnd, None, 0, 0, self.Size[0]+16, self.Size[1]+39, 0)
@@ -232,8 +244,7 @@ class Window():
 
         self.gdi32.SelectObject(hdc_mem, hbm_mem)
 
-        buffer_array = (ct.c_uint32 * (self.Size[0]*self.Size[1]))(*self.Buffer)
-        ct.memmove(pixel_data, buffer_array, len(self.Buffer) * ct.sizeof(ct.c_uint32))
+        ct.memmove(pixel_data, self.Buffer, len(self.Buffer) * ct.sizeof(ct.c_uint32))
 
 
         self.gdi32.BitBlt(hdc, 0, 0, width, height, hdc_mem, 0, 0, 0x00CC0020)
@@ -250,7 +261,8 @@ class Window():
 
 
     def MainWin(self):
-        self.Buffer = [0x000000 for _ in range(self.Size[1]*self.Size[0])]
+        self.Buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
+
 
         self.wndclass = WNDCLASS()
         self.wndclass.style         = CS_HREDRAW | CS_VREDRAW
@@ -285,3 +297,4 @@ class Window():
         self.ready = True
         self.keep_alive(msg)
         return msg.wParam
+
