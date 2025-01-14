@@ -13,15 +13,17 @@ rainbow_colors = [
 ]
 
 def start(core):
-    print("Started")
-    core.window.SetWindowSize(960,540)
+    core.window.SetWindowSize(600,500)
+    core.window.Title = "My Super Game"
 
 def update(core):
-    for i in range(1000):
-        if core.window.ready:
-            core.window.SetPixelColor(random.randint(0,99), random.randint(0,99), random.choice(rainbow_colors))
+    if core.window.ready:
+        core.engine.draw_line(0,0,100,100,value=0xFFFFFF)
     if core.window.ready:
         core.window.update()
+    print(core.window.Buffer)
+    time.sleep(10)
+
 
 core = Core(start=start,update=update)
 core.run()

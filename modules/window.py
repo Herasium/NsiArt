@@ -88,7 +88,9 @@ class BITMAPINFO(ct.Structure):
 
 
 class Window():
-    def __init__(self):
+    def __init__(self,core):
+        self.core = core
+
         self.kernel32 = ct.WinDLL('kernel32', use_last_error=True)
         self.GetModuleHandle = self.kernel32.GetModuleHandleW
         self.GetModuleHandle.argtypes = w.LPCWSTR,
@@ -160,18 +162,21 @@ class Window():
 
         self.Title = "Default Window"
         self.Size = (100,100)
-        self.Buffer = [[0x000000 for _ in range(self.Size[1])] for _ in range(self.Size[0])]
         self.past_size = None
         self.ready = False
 
     def errcheck(self, result, func, args):
         if result is None or result == 0:
-            raise ct.WinError(ct.get_last_error())
+            a = ct.get_last_error()
+            print(a)
+            raise ct.WinError(a)
         return result
 
     def minusonecheck(self, result, func, args):
         if result == -1:
-            raise ct.WinError(ct.get_last_error())
+            a = ct.get_last_error()
+            print(a)
+            raise ct.WinError(a)
         return result
 
     def WndProc(self, hwnd, message, wParam, lParam):
@@ -190,7 +195,7 @@ class Window():
         return self.DefWindowProc(hwnd, message, wParam, lParam)
 
     def SetPixelColor(self, x, y, color):
-        self.Buffer[y][x] = color 
+        self.Buffer[y * self.Size[0] + x] = color 
 
     def SetWindowSize(self, width, height):
         self.Size = (width,height)
@@ -198,7 +203,7 @@ class Window():
     def update(self):
         if self.past_size != self.Size:
             self.past_size = self.Size
-            self.SetWindowPos(self.hwnd, None, 0, 0, self.Size[0], self.Size[1], 0)
+            self.SetWindowPos(self.hwnd, None, 0, 0, self.Size[0]+16, self.Size[1]+39, 0)
 
         hdc = self.user32.GetDC(self.hwnd)
         hdc_mem = self.gdi32.CreateCompatibleDC(hdc)
@@ -222,15 +227,13 @@ class Window():
         bitmap_info.bmiHeader.biClrUsed = 0
         bitmap_info.bmiHeader.biClrImportant = 0
 
-   
         pixel_data = ct.POINTER(ct.c_uint32)()
         hbm_mem = self.gdi32.CreateDIBSection(hdc, ct.byref(bitmap_info), 0, ct.byref(pixel_data), None, 0)
 
         self.gdi32.SelectObject(hdc_mem, hbm_mem)
 
-        for y in range(len(self.Buffer)):
-            for x in range(len(self.Buffer[0])):
-                pixel_data[y * width + x] = self.Buffer[y][x]
+        buffer_array = (ct.c_uint32 * (self.Size[0]*self.Size[1]))(*self.Buffer)
+        ct.memmove(pixel_data, buffer_array, len(self.Buffer) * ct.sizeof(ct.c_uint32))
 
 
         self.gdi32.BitBlt(hdc, 0, 0, width, height, hdc_mem, 0, 0, 0x00CC0020)
@@ -240,12 +243,15 @@ class Window():
         self.gdi32.DeleteDC(hdc_mem)
 
     def keep_alive(self,msg):
+        print("Alive")
         while self.GetMessage(ct.byref(msg), None, 0, 0) != 0:
             self.TranslateMessage(ct.byref(msg))
             self.DispatchMessage(ct.byref(msg))
 
 
     def MainWin(self):
+        self.Buffer = [0x000000 for _ in range(self.Size[1]*self.Size[0])]
+
         self.wndclass = WNDCLASS()
         self.wndclass.style         = CS_HREDRAW | CS_VREDRAW
         self.wndclass.lpfnWndProc   = WNDPROC(self.WndProc)
@@ -272,13 +278,10 @@ class Window():
                             None,
                             self.wndclass.hInstance,
                             None)
- 
+
         self.user32.ShowWindow(self.hwnd, SW_SHOWNORMAL)
         self.user32.UpdateWindow(self.hwnd)
-
         msg = w.MSG()
         self.ready = True
-
         self.keep_alive(msg)
-
         return msg.wParam
