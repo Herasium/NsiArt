@@ -170,14 +170,12 @@ class Window():
     def errcheck(self, result, func, args):
         if result is None or result == 0:
             a = ct.get_last_error()
-            print(a)
             raise ct.WinError(a)
         return result
 
     def minusonecheck(self, result, func, args):
         if result == -1:
             a = ct.get_last_error()
-            print(a)
             raise ct.WinError(a)
         return result
 
@@ -198,14 +196,14 @@ class Window():
 
     def SetPixelColor(self, x, y, color):
         if self.ready:
-            self.Buffer[int(y * self.Size[0] + x)] = color 
+            self.buffer[int(y * self.Size[0] + x)] = color 
 
     def SetWindowSize(self, width, height):
         self.Size = (width,height)
 
     def clear_buffer(self):
         if self.ready:
-            self.Buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
+            self.buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
 
 
     @profile
@@ -244,7 +242,7 @@ class Window():
 
         self.gdi32.SelectObject(hdc_mem, hbm_mem)
 
-        ct.memmove(pixel_data, self.Buffer, len(self.Buffer) * ct.sizeof(ct.c_uint32))
+        ct.memmove(pixel_data, self.buffer, len(self.buffer) * ct.sizeof(ct.c_uint32))
 
 
         self.gdi32.BitBlt(hdc, 0, 0, width, height, hdc_mem, 0, 0, 0x00CC0020)
@@ -254,14 +252,13 @@ class Window():
         self.gdi32.DeleteDC(hdc_mem)
 
     def keep_alive(self,msg):
-        print("Alive")
         while self.GetMessage(ct.byref(msg), None, 0, 0) != 0:
             self.TranslateMessage(ct.byref(msg))
             self.DispatchMessage(ct.byref(msg))
 
 
     def MainWin(self):
-        self.Buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
+        self.buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
 
 
         self.wndclass = WNDCLASS()

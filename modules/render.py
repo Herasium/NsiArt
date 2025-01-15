@@ -40,7 +40,6 @@ class RenderEngine():
             steps += 1
 
         if steps == max_steps:
-            print(x3,y3,x2,y2)
             raise RuntimeError("Line drawing exceeded maximum steps. Possible infinite loop.")
         
     def draw_3dline(self, color, a, b):
