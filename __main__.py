@@ -14,7 +14,7 @@ rainbow_colors = [
 ]
 
 def start(core):
-    core.window.SetWindowSize(600,500)
+    core.window.SetWindowSize(1000,1000)
     core.window.Title = "My Super Game"
     core.data = {"x":0}
 

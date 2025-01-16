@@ -53,7 +53,7 @@ class Window():
     def MainWin(self):
         pygame.init()
 
-        self.screen = pygame.display.set_mode(self.Size, pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(self.Size)
         pygame.display.set_caption(self.Title)
         self.clock = pygame.time.Clock()
 
