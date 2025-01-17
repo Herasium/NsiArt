@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 import random
 window = pygame_adapter.Window("")
-window.Size = (1000,1000)
+window.Size = (1920,1080)
 
 def line(x0, y0, x1, y1, color):
     dx = x1 - x0
@@ -38,17 +38,26 @@ def start():
     while window.ready == False: pass
 
     faces = obj_parser.parse_obj("modules/render/example.obj")
+    offset = 1
     while True:
         for a in faces["faces"]:
             for j in range(3):
                 v0 = a[j]
                 v1 = a[(j + 1) % 3]
-                x0 = 500-int((faces["vertices"][v0[0]-1][0] + 1.0) * window.Size[0] / 4.0)
-                y0 = 500-int((faces["vertices"][v0[0]-1][1] + 1.0) * window.Size[1] / 4.0)
-                x1 = 500-int((faces["vertices"][v1[0]-1][0] + 1.0) * window.Size[0] / 4.0)
-                y1 = 500-int((faces["vertices"][v1[0]-1][1] + 1.0) * window.Size[1] / 4.0)
+                x0 = 1920-int((faces["vertices"][v0[0]-1][0] + 1.0) * window.Size[0] / 2.0)
+                y0 = 1080-int((faces["vertices"][v0[0]-1][1] + 1.0) * window.Size[1] / 2.0)
+                z0 = int((faces["vertices"][v0[0]-1][2] + 1.0) * 50)
+                x1 = 1920-int((faces["vertices"][v1[0]-1][0] + 1.0) * window.Size[0] / 2.0)
+                y1 = 1080-int((faces["vertices"][v1[0]-1][1] + 1.0) * window.Size[1] / 2.0)
+            
                 line(x0, y0, x1, y1,0xFFFFFF)
-            window.update()
+
+        offset += 1
+        if offset > 90:
+            offset = 1
+
+        window.update()
+        window.clear_buffer()
         
 
 
