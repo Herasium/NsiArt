@@ -5,8 +5,16 @@ import time
 from tqdm import tqdm
 import random
 import math
+import pygame
+from line_profiler import profile
+
 window = pygame_adapter.Window("")
 window.Size = (1000,1000)
+
+texture = pygame.image.load("modules/render/uv-grid.png")  
+texture = pygame.transform.flip(texture, False, True)
+texture_width, texture_height = texture.get_size()
+texture_data = pygame.PixelArray(texture)
 
 class Vec3:
     def __init__(self, x=0, y=0, z=0):
@@ -109,84 +117,126 @@ def line(x0, y0, x1, y1, color):
             D -= 2*dx
         D += 2*dy
 
-def triangle(t0, t1, t2, color):
-    # Sort the vertices by y-coordinate, t0, t1, t2 lower-to-upper
+@profile
+def triangle(pts,uvs, zbuffer):
+    t0, t1, t2 = pts
+    uv0, uv1, uv2 = uvs
+
     if t0.y > t1.y:
         t0, t1 = t1, t0
+        uv0, uv1 = uv1, uv0
+
     if t0.y > t2.y:
         t0, t2 = t2, t0
+        uv0, uv2 = uv2, uv0
+
     if t1.y > t2.y:
         t1, t2 = t2, t1
+        uv1, uv2 = uv2, uv1
+
+
 
     total_height = t2.y - t0.y
+
+    @profile
+    def draw_scanline(y, A, B, uvA, uvB):
+        if A.x > B.x:
+            A, B = B, A
+            uvA,uvB = uvB, uvA
+        for j in range(int(A.x), int(B.x + 1)):
+            t = (j - A.x) / (B.x - A.x) if B.x != A.x else 0
+            z = A.z + t * (B.z - A.z)
+            uv_interp = Vec2(
+                uvA.x + t * (uvB.x - uvA.x),
+                uvA.y + t * (uvB.y - uvA.y)
+            )
+            if 0 <= (0-j) < window.Size[0] and 0 <= (0-y) < window.Size[1]:
+            
+                if zbuffer[j][y] < z:
+                    zbuffer[j][y] = z
+
+                    tex_x = int(uv_interp.x * texture_width)
+                    tex_y = int(uv_interp.y * texture_height)
+                    tex_x = max(0, min(tex_x, texture_width - 1))
+                    tex_y = max(0, min(tex_y, texture_height - 1))
+                    color = texture_data[tex_x, tex_y]
+                    window.SetPixelColor(0 - j, 0 - y, color)
 
     for y in range(int(t0.y), int(t1.y + 1)):
         segment_height = t1.y - t0.y + 1
         alpha = (y - t0.y) / total_height
         beta = (y - t0.y) / segment_height if segment_height != 0 else 0
 
-        A = Vec2(
+        A = Vec3(
             t0.x + (t2.x - t0.x) * alpha,
-            t0.y + (t2.y - t0.y) * alpha
+            t0.y + (t2.y - t0.y) * alpha,
+            t0.z + (t2.z - t0.z) * alpha
         )
-        B = Vec2(
+        B = Vec3(
             t0.x + (t1.x - t0.x) * beta,
-            t0.y + (t1.y - t0.y) * beta
+            t0.y + (t1.y - t0.y) * beta,
+            t0.z + (t1.z - t0.z) * beta
         )
 
-        if A.x > B.x:
-            A, B = B, A
+        uvA = uv0 + alpha * (uv2 - uv0)
+        uvB = uv0 + beta * (uv1 - uv0)
 
-        for j in range(int(A.x), int(B.x + 1)):
-            window.SetPixelColor(0-j, 0-y, color)
+        draw_scanline(y, A, B, uvA, uvB)
 
     for y in range(int(t1.y), int(t2.y + 1)):
         segment_height = t2.y - t1.y + 1
         alpha = (y - t0.y) / total_height
         beta = (y - t1.y) / segment_height if segment_height != 0 else 0
 
-        A = Vec2(
+        A = Vec3(
             t0.x + (t2.x - t0.x) * alpha,
-            t0.y + (t2.y - t0.y) * alpha
+            t0.y + (t2.y - t0.y) * alpha,
+            t0.z + (t2.z - t0.z) * alpha
         )
-        B = Vec2(
+        B = Vec3(
             t1.x + (t2.x - t1.x) * beta,
-            t1.y + (t2.y - t1.y) * beta
+            t1.y + (t2.y - t1.y) * beta,
+            t1.z + (t2.z - t1.z) * beta
         )
 
-        if A.x > B.x:
-            A, B = B, A
+        uvA = uv0 + alpha * (uv2 - uv0)
+        uvB = uv1 + beta * (uv2 - uv1)
 
-        for j in range(int(A.x), int(B.x + 1)):
-            window.SetPixelColor(0-j, 0-y, color)
+        draw_scanline(y, A, B, uvA, uvB)
 
+@profile
 def start():
-    while window.ready == False: pass
+    while not window.ready:
+        pass
 
+    start_time = time.time()
+    zbuffer = [[-float('inf') for _ in range(window.Size[1])] for _ in range(window.Size[0])]
     faces = obj_parser.parse_obj("modules/render/example.obj")
     light_dir = Vec3(0, 0, -1)
 
-    while True:
-        for a in faces["faces"]:
-            v0 = Vec3(*faces["vertices"][a[0][0]-1]) *( window.Size[0] / 4.0) + Vec3(-500,-500,-500)
-            v1 = Vec3(*faces["vertices"][a[1][0]-1]) *( window.Size[0] / 4.0) + Vec3(-500,-500,-500)
-            v2 = Vec3(*faces["vertices"][a[2][0]-1]) *( window.Size[0] / 4.0) + Vec3(-500,-500,-500)
-
-            n = (v2 - v0).cross(v1 - v0)  
-            n.normalize()                
-            intensity = n.dot(light_dir)
-            if intensity > 0:  
-  
-                color = int(intensity * 255)
-                shaded_color = (color << 16) | (color << 8) | color  
-
-                triangle(v0,v1,v2,shaded_color)
-
-
-        window.update()
-        window.clear_buffer()
     
+    for a in faces["faces"]:
+                v0 = Vec3(*faces["vertices"][a[0][0] - 1]) * (window.Size[0] / 4.0) + Vec3(-500,-500,-500)
+                v1 = Vec3(*faces["vertices"][a[1][0] - 1]) * (window.Size[0] / 4.0) + Vec3(-500,-500,-500)
+                v2 = Vec3(*faces["vertices"][a[2][0] - 1]) * (window.Size[0] / 4.0) + Vec3(-500,-500,-500)
+  
+                u0 = faces["textures"][a[0][1] - 1]
+                u1 = faces["textures"][a[1][1] - 1]
+                u2 = faces["textures"][a[2][1] - 1]
+    
+                n = (v2 - v0).cross(v1 - v0)
+                n = n.normalize()
+                intensity = n.dot(light_dir)
+                if intensity > 0:
+                    triangle([v0, v1, v2],[Vec2(u0[0],u0[1]), Vec2(u1[0],u1[1]), Vec2(u2[0],u2[1])], zbuffer)
 
+    window.update()
+    window.clear_buffer()
+
+    
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time:.4f} seconds")
 
 main_thread = Thread(target=start)
 main_thread.daemon = True
