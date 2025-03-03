@@ -1,12 +1,16 @@
-import pygame_adapter
+import modules.pygame_adapter as pygame_adapter
 from threading import Thread
-import obj_parser
+import modules.render.obj_parser
 import time
 from tqdm import tqdm
 import random
-window = pygame_adapter.Window("")
-window.Size = (1920,1080)
+from line_profiler import profile
 
+
+window = pygame_adapter.Window("")
+window.Size = (500,500)
+
+@profile
 def line(x0, y0, x1, y1, color):
     dx = x1 - x0
     dy = y1 - y0
@@ -33,22 +37,23 @@ def line(x0, y0, x1, y1, color):
             D -= 2*dx
         D += 2*dy
 
-
+@profile
 def start():
     while window.ready == False: pass
 
     faces = obj_parser.parse_obj("modules/render/example.obj")
     offset = 1
+    canvas_size = 500
     while True:
         for a in faces["faces"]:
             for j in range(3):
                 v0 = a[j]
                 v1 = a[(j + 1) % 3]
-                x0 = 1920-int((faces["vertices"][v0[0]-1][0] + 1.0) * window.Size[0] / 2.0)
-                y0 = 1080-int((faces["vertices"][v0[0]-1][1] + 1.0) * window.Size[1] / 2.0)
+                x0 = canvas_size-int((faces["vertices"][v0[0]-1][0] + 1.0) * canvas_size / 2.0)
+                y0 = canvas_size-int((faces["vertices"][v0[0]-1][1] + 1.0) * canvas_size / 2.0)
                 z0 = int((faces["vertices"][v0[0]-1][2] + 1.0) * 50)
-                x1 = 1920-int((faces["vertices"][v1[0]-1][0] + 1.0) * window.Size[0] / 2.0)
-                y1 = 1080-int((faces["vertices"][v1[0]-1][1] + 1.0) * window.Size[1] / 2.0)
+                x1 = canvas_size-int((faces["vertices"][v1[0]-1][0] + 1.0) * canvas_size / 2.0)
+                y1 = canvas_size-int((faces["vertices"][v1[0]-1][1] + 1.0) * canvas_size / 2.0)
             
                 line(x0, y0, x1, y1,0xFFFFFF)
 
