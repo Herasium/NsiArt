@@ -1,95 +1,10 @@
-import pygame_adapter
-from threading import Thread
-import obj_parser
 import time
 from tqdm import tqdm
 import random
 import math
-import pygame
-from line_profiler import profile
 
-window = pygame_adapter.Window("")
-window.Size = (1000,1000)
-
-texture = pygame.image.load("modules/render/uv-grid.png")  
-texture = pygame.transform.flip(texture, False, True)
-texture_width, texture_height = texture.get_size()
-texture_data = pygame.PixelArray(texture)
-
-class Vec3:
-    def __init__(self, x=0, y=0, z=0):
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def __add__(self, other):
-        if isinstance(other, Vec3):
-            return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
-        return NotImplemented
-
-    def __sub__(self, other):
-        if isinstance(other, Vec3):
-            return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
-        return NotImplemented
-
-    def __mul__(self, other):
-        if isinstance(other, (int, float)): 
-            return Vec3(self.x * other, self.y * other, self.z * other)
-        if isinstance(other, Vec3): 
-            return Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
-        return NotImplemented
-
-    def cross(self, other):
-        return Vec3(
-            self.y * other.z - self.z * other.y,
-            self.z * other.x - self.x * other.z,
-            self.x * other.y - self.y * other.x,
-        )
-
-    def dot(self, other):
-        return self.x * other.x + self.y * other.y + self.z * other.z
-
-    def normalize(self):
-        magnitude = math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
-        if magnitude == 0:
-            return self
-        return Vec3(self.x / magnitude, self.y / magnitude, self.z / magnitude)
-
-
-    def __rmul__(self, other):
-        return self.__mul__(other)
-
-    def __repr__(self):
-        return f"Vec3({self.x}, {self.y}, {self.z})"
-    
-class Vec2:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-
-
-    def __add__(self, other):
-        if isinstance(other, Vec2):
-            return Vec2(self.x + other.x, self.y + other.y)
-        return NotImplemented
-
-    def __sub__(self, other):
-        if isinstance(other, Vec2):
-            return Vec2(self.x - other.x, self.y - other.y)
-        return NotImplemented
-
-    def __mul__(self, other):
-        if isinstance(other, (int, float)): 
-            return Vec2(self.x * other, self.y * other)
-        if isinstance(other, Vec2): 
-            return Vec2(self.x * other.x, self.y * other.y)
-        return NotImplemented
-
-    def __rmul__(self, other):
-        return self.__mul__(other)
-
-    def __repr__(self):
-        return f"Vec2({self.x}, {self.y})"
+from HeraEngine.types.Vec2 import Vec2
+from HeraEngine.types.Vec3 import Vec3
 
 def line(x0, y0, x1, y1, color):
     dx = x1 - x0
@@ -117,7 +32,7 @@ def line(x0, y0, x1, y1, color):
             D -= 2*dx
         D += 2*dy
 
-@profile
+
 def triangle(pts,uvs, zbuffer):
     t0, t1, t2 = pts
     uv0, uv1, uv2 = uvs
@@ -138,7 +53,7 @@ def triangle(pts,uvs, zbuffer):
 
     total_height = t2.y - t0.y
 
-    @profile
+
     def draw_scanline(y, A, B, uvA, uvB):
         if A.x > B.x:
             A, B = B, A
@@ -204,7 +119,7 @@ def triangle(pts,uvs, zbuffer):
 
         draw_scanline(y, A, B, uvA, uvB)
 
-@profile
+
 def start():
     while not window.ready:
         pass
@@ -238,11 +153,29 @@ def start():
     execution_time = end_time - start_time
     print(f"Execution time: {execution_time:.4f} seconds")
 
-main_thread = Thread(target=start)
-main_thread.daemon = True
-main_thread.start()
+if __name__ == "__main__":
 
-window.MainWin()
+    import pygame_adapter
+    from threading import Thread
+    import pygame
+    from line_profiler import profile    
+    import obj_parser   
+
+
+    window = pygame_adapter.Window("")
+    window.Size = (1000,1000)
+
+    texture = pygame.image.load("modules/render/uv-grid.png")  
+    texture = pygame.transform.flip(texture, False, True)
+    texture_width, texture_height = texture.get_size()
+    texture_data = pygame.PixelArray(texture)
+
+
+    main_thread = Thread(target=start)
+    main_thread.daemon = True
+    main_thread.start()
+
+    window.MainWin()
 
 
 

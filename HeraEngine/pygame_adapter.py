@@ -2,13 +2,14 @@ import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import threading
+from HeraEngine.types.Vec2 import Vec2
 
 class Window():
     def __init__(self, core):
         self.core = core
 
         self.Title = "Default Window"
-        self.Size = (500, 500)
+        self.Size = Vec2(100,100)
         self.past_size = None
         self.ready = False
         self.running = False
@@ -23,11 +24,15 @@ class Window():
     def SetPixelColor(self, x, y, color):
         if self.ready:
             rgb_color = self.hex_to_rgb(color)
-            if  x < self.Size[0] and y < self.Size[1]:
+            if  x < self.Size.x and y < self.Size.y:
                 self.buffer[x, y] = rgb_color
 
-    def SetWindowSize(self, width, height):
-        self.Size = (width, height)
+    def SetWindowSize(self, size):
+        if not isinstance(size,Vec2):
+            raise TypeError("Window size must be a Vec2")
+        self.Size = size
+
+
 
     def clear_buffer(self):
         if self.ready:
@@ -53,7 +58,7 @@ class Window():
     def MainWin(self):
         pygame.init()
 
-        self.screen = pygame.display.set_mode(self.Size)
+        self.screen = pygame.display.set_mode((self.Size.y, self.Size.x))
         pygame.display.set_caption(self.Title)
         self.clock = pygame.time.Clock()
 
