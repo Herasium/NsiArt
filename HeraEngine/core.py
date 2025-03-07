@@ -1,7 +1,9 @@
 import threading
 import traceback
 import time
+from line_profiler import profile
 import os
+import ctypes
 
 from HeraEngine.logger import Logger
 from HeraEngine.childs.Entity import Entity
@@ -17,7 +19,7 @@ class Core():
         self.log = Logger()
         self.running = False
         self.EntityList = {1:[],2:[],3:[],4:[]}
-        self.size = Vec2(100,100)
+        self.size = Vec2(500,500)
         self.Pipeline = PipeLine(self.size)
         self.tick_count = 0
 
@@ -60,6 +62,7 @@ class Core():
             traceback.print_exc()
             self.log.ERROR(f"Failed to start: {e}")
 
+    @profile
     def run_updates(self):
         while self.running:
             self.tick_count += 1
@@ -68,18 +71,13 @@ class Core():
                 self.update(self)
                 self.Pipeline.update(EntityList=self.EntityList)
                 self.Pipeline.render()
-
-                for y in range(self.size.y):
-                    for x in range(self.size.x):
-                        self.window.SetPixelColor(x,y,self.Pipeline.BackgroundBuffer[y*self.size.y+x])
-
+                self.window.buffer = self.Pipeline.BackgroundBuffer
                 self.window.update()
-                self.Pipeline.clear_buffer()
+                #self.Pipeline.clear_buffer()
                 end_time = time.time()
 
                 execution_time = end_time - start_time
                 execution_time += 0.00000001 #Prevent Divisions by 0 in fps calculation
-                self.log.DEBUG(f"FPS: {1/execution_time}")
             except Exception as e: 
                 traceback.print_exc()
                 self.log.ERROR(f"Failed to run update : {e}")

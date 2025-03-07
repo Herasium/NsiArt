@@ -294,5 +294,6 @@ class Window():
         msg = w.MSG()
         self.ready = True
         self.keep_alive(msg)
+        
         return msg.wParam
 
