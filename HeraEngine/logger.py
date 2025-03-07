@@ -3,7 +3,7 @@ import time
 class Logger():
     def __init__(self):
         self.level = 0
-        self.header = "[{level} ({time})]"
+        self.header = "[HeraEngine][{level} ({time})]"
 
     def DEBUG(self,message):
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")

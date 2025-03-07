@@ -4,7 +4,7 @@ import ctypes as ct
 import ctypes.wintypes as w
 import time
 import threading
-from line_profiler import profile
+from HeraEngine.types.Vec2 import Vec2
 
 
 def MAKEINTRESOURCE(x):
@@ -163,7 +163,7 @@ class Window():
         self.GetStockObject.restype = w.HGDIOBJ
 
         self.Title = "Default Window"
-        self.Size = (100,100)
+        self.Size = Vec2(100,100)
         self.past_size = None
         self.ready = False
 
@@ -196,24 +196,26 @@ class Window():
 
     def SetPixelColor(self, x, y, color):
         if self.ready:
-            self.buffer[int(y * self.Size[0] + x)] = color 
+            self.buffer[int(y * self.Size.y + x)] = color 
 
-    def SetWindowSize(self, width, height):
-        self.Size = (width,height)
+    def SetWindowSize(self, size):
+        if not isinstance(size,Vec2):
+            raise TypeError("Window size must be a Vec2")
+        self.Size = size
 
     def clear_buffer(self):
         if self.ready:
-            self.buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
+            self.buffer = (ct.c_uint32 * (self.Size.y*self.Size.x))()
 
 
-    @profile
+
     def update(self):
         if not self.ready:
             return
         
         if self.past_size != self.Size:
             self.past_size = self.Size
-            self.SetWindowPos(self.hwnd, None, 0, 0, self.Size[0]+16, self.Size[1]+39, 0)
+            self.SetWindowPos(self.hwnd, None, 0, 0, self.Size.y+16, self.Size.x+39, 0)
 
         hdc = self.user32.GetDC(self.hwnd)
         hdc_mem = self.gdi32.CreateCompatibleDC(hdc)
@@ -223,7 +225,6 @@ class Window():
         width = rect.right
         height = rect.bottom
 
-   
         bitmap_info = BITMAPINFO()
         bitmap_info.bmiHeader.biSize = ct.sizeof(BITMAPINFOHEADER)
         bitmap_info.bmiHeader.biWidth = width
@@ -258,7 +259,7 @@ class Window():
 
 
     def MainWin(self):
-        self.buffer = (ct.c_uint32 * (self.Size[0]*self.Size[1]))()
+        self.buffer = (ct.c_uint32 * (self.Size.x*self.Size.y))()
 
 
         self.wndclass = WNDCLASS()
@@ -293,5 +294,6 @@ class Window():
         msg = w.MSG()
         self.ready = True
         self.keep_alive(msg)
+        
         return msg.wParam
 

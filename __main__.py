@@ -1,35 +1,29 @@
-from modules.core import Core
-import random
-import time
+from HeraEngine import *
 import math
-from line_profiler import profile
+import random
 
-rainbow_colors = [
-    0xFF0000, 0xFF3300, 0xFF6600, 0xFF9900, 0xFFCC00, 0xFFFF00, 0xB2FF00, 0x80FF00,
-    0x4DFF00, 0x1AFF00, 0x00FF00, 0x00FF33, 0x00FF66, 0x00FF99, 0x00FFCC, 0x00FFFF,
-    0x00B2FF, 0x0099FF, 0x007FFF, 0x0066FF, 0x004DFF, 0x0033FF, 0x001AFF, 0x0000FF,
-    0x3200FF, 0x4D00FF, 0x6600FF, 0x7F00FF, 0x9900FF, 0xB200FF, 0xCC00FF, 0xE600FF,
-    0xFF00FF, 0xFF00CC, 0xFF0099, 0xFF0066, 0xFF0033, 0xFF0000, 0xFF3300, 0xFF6600,
-    0xFF9900, 0xFFCC00, 0xFFFF00, 0xFFFF33, 0xFFFF66, 0xFFFF99, 0xFFFFCC, 0xFFFFFF,
-    0xCCFFCC, 0x99FF99, 0x66FF66, 0x33FF33, 0x00FF00
-]
+def get_rainbow_color(t):
+    r = int(math.sin(0.3 * t) * 127 + 128)
+    g = int(math.sin(0.3 * t + 2 * math.pi / 3) * 127 + 128)
+    b = int(math.sin(0.3 * t + 4 * math.pi / 3) * 127 + 128)
+    return r, g, b
+def start(app: Core):
+    app.window.Title = "My Super Game"
+    
+    app.test = Entity(layer=layers.background,size=Vec2(10,10),position=Vec2(0,0))
+    app.add_entity(app.test)
 
-def start(core):
-    core.window.SetWindowSize(600,500)
-    core.window.Title = "My Super Game"
-    core.data = {"x":0}
-    print(core.render.sphere)
+def update(app: Core):
+    x = (app.tick_count % 21)  
+    y = (app.tick_count // 21)  
 
-@profile
-def update(core):
-    core.data["x"] += 0.001
-    core.render.draw_triangles(round(core.data["x"]*10000),core.render.sphere)
-    core.render.rotate_object(core.render.sphere,math.sin(core.data["x"])*0.1,(0,1,0))
-    core.render.rotate_object(core.render.sphere,math.sin(core.data["x"])*0.1,(1,0,0))
-    core.window.update()
-    core.window.clear_buffer()
+    if y > 20:
+        y = 20 
+
+    app.test.position = Vec2(int(x)*10, int(y)*10)
+    r, g, b = get_rainbow_color(app.tick_count / 60)
+    app.test.color.update(r=r, g=g, b=b)
 
 
-
-core = Core(start=start,update=update)
-core.run()
+app = Core(start=start,update=update)
+app.run()
