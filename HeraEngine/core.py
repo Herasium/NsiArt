@@ -19,26 +19,50 @@ class Core():
         self.log = Logger()
         self.running = False
         self.EntityList = {1:[],2:[],3:[],4:[]}
-        self.size = Vec2(500,500)
+        self._fullscreen = False
+        self._size = Vec2(500,500)
         self.Pipeline = PipeLine(self.size)
         self.tick_count = 0
+        self.fps = 0
 
         if self.is_windows:
             self.log.DEBUG(f"Detected platform: Windows, importing window")
             from HeraEngine.window import Window
-            self.window = Window(self)
-            self.window.SetWindowSize(self.size)
+            self.window = Window(self,self.size)
             self.log.DEBUG(f"Loaded Window Size: {self.window.Size}")
 
         else:
             self.log.DEBUG(f"Detected platform: Unix (Max/Linux), importing pygame_adapter")
             from HeraEngine.pygame_adapter import Window
-            self.window = Window(self)
-            self.window.SetWindowSize(self.size)
+            self.window = Window(self,self.size)
             self.log.DEBUG(f"Loaded Window (PyGame Adapter) Size: {self.window.Size}")
 
         self.start = start
         self.update = update
+
+
+    @property
+    def fullscreen(self):
+        return self._fullscreen
+    
+    @fullscreen.setter
+    def fullscreen(self,value):
+        self._fullscreen = value
+        self.window.fullscreen = value
+        #fullsize = self.window.GetFullscreenSize()
+        #self.size = Vec2(fullsize[1],fullsize[0])
+
+    @property
+    def size(self):
+        return self._size
+    
+    @size.setter
+    def size(self,value):
+        if not isinstance(value, Vec2):
+            raise TypeError(f"Size should be a Vec2, not {value.__class__.__name__}")
+        self._size = value
+        self.Pipeline.update(size=self._size) 
+        self.Pipeline.clear_buffer()
 
     def add_entity(self,target):
         if isinstance(target,Entity):
@@ -56,7 +80,7 @@ class Core():
             update_thread.start()
             self.log.DEBUG("Launched Update thread.")
             self.window.MainWin()
-            self.log.INFO("Launched Start Function, Update thread and Launched main window.")
+            self.log.INFO("Code Ended. Goodbye ;)")
                     
         except Exception as e:
             traceback.print_exc()
@@ -78,6 +102,7 @@ class Core():
 
                 execution_time = end_time - start_time
                 execution_time += 0.00000001 #Prevent Divisions by 0 in fps calculation
+                self.fps = 1/execution_time
             except Exception as e: 
                 traceback.print_exc()
                 self.log.ERROR(f"Failed to run update : {e}")

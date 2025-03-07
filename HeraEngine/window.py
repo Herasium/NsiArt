@@ -13,7 +13,7 @@ def MAKEINTRESOURCE(x):
 CW_USEDEFAULT = ct.c_int(0x80000000).value
 IDI_APPLICATION = MAKEINTRESOURCE(32512)
 
-WS_OVERLAPPEDWINDOW = 0x00CF0000
+
 
 CS_HREDRAW = 2
 CS_VREDRAW = 1
@@ -22,8 +22,23 @@ WHITE_BRUSH = 0
 
 SW_SHOWNORMAL = 1
 
+#Windows messages, used for having mouse position and keys and stuff
 WM_PAINT = 15
 WM_DESTROY = 2
+WM_MOUSEMOVE = 0x0200
+WM_KEYDOWN = 0x0100
+WM_KEYUP   = 0x0101
+WM_CHAR    = 0x0102
+
+#Windows types, useful for fullscreen
+WS_OVERLAPPEDWINDOW = 0x00CF0000
+WS_THICKFRAME = 0x00040000
+WS_MAXIMIZEBOX = 0x00010000
+WS_POPUP       = 0x80000000
+WS_NOT_RESIZABLE =  WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX)
+
+SM_CXSCREEN    = 0 
+SM_CYSCREEN    = 1
 
 LRESULT = ct.c_int64
 HCURSOR = ct.c_void_p
@@ -90,7 +105,7 @@ class BITMAPINFO(ct.Structure):
 
 
 class Window():
-    def __init__(self,core):
+    def __init__(self,core,size):
         self.core = core
 
         self.kernel32 = ct.WinDLL('kernel32', use_last_error=True)
@@ -163,8 +178,9 @@ class Window():
         self.GetStockObject.restype = w.HGDIOBJ
 
         self.Title = "Default Window"
-        self.Size = Vec2(100,100)
+        self.Size = size
         self.past_size = None
+        self.fullscreen = False
         self.ready = False
 
     def errcheck(self, result, func, args):
@@ -191,12 +207,31 @@ class Window():
         elif message == WM_DESTROY:
             self.PostQuitMessage(0)
             return 0
+        elif message == WM_KEYDOWN:
+            print("Key down, VK code:", wParam)
+            return 0
+        elif message == WM_KEYUP:
+            print("Key up, VK code:", wParam)
+            return 0
+        elif message == WM_CHAR:
+            char = chr(wParam)
+            print("WM_CHAR received:", char)
+            return 0
+        elif message == WM_MOUSEMOVE:
+            x = ct.c_short(lParam & 0xffff).value
+            y = ct.c_short((lParam >> 16) & 0xffff).value
+            print("Mouse moved to:", x, y)
+        return 0
+
 
         return self.DefWindowProc(hwnd, message, wParam, lParam)
 
     def SetPixelColor(self, x, y, color):
         if self.ready:
             self.buffer[int(y * self.Size.y + x)] = color 
+
+    def GetFullscreenSize(self):
+        return self.user32.GetSystemMetrics(SM_CXSCREEN),self.user32.GetSystemMetrics(SM_CYSCREEN)
 
     def SetWindowSize(self, size):
         if not isinstance(size,Vec2):
@@ -213,7 +248,7 @@ class Window():
         if not self.ready:
             return
         
-        if self.past_size != self.Size:
+        if self.past_size != self.Size and not self.fullscreen:
             self.past_size = self.Size
             self.SetWindowPos(self.hwnd, None, 0, 0, self.Size.y+16, self.Size.x+39, 0)
 
@@ -279,7 +314,7 @@ class Window():
         self.hwnd = self.CreateWindowEx(0,
                             self.wndclass.lpszClassName,
                             self.Title,
-                            WS_OVERLAPPEDWINDOW,
+                            WS_POPUP if self.fullscreen else WS_NOT_RESIZABLE,
                             CW_USEDEFAULT,
                             CW_USEDEFAULT,
                             CW_USEDEFAULT,
@@ -288,6 +323,14 @@ class Window():
                             None,
                             self.wndclass.hInstance,
                             None)
+
+        if self.fullscreen:
+            self.SetWindowPos(self.hwnd, None, 0, 0,
+                            self.user32.GetSystemMetrics(SM_CXSCREEN),
+                            self.user32.GetSystemMetrics(SM_CYSCREEN),
+                            0)
+            
+            self.Size = Vec2(*self.GetFullscreenSize())
 
         self.user32.ShowWindow(self.hwnd, SW_SHOWNORMAL)
         self.user32.UpdateWindow(self.hwnd)

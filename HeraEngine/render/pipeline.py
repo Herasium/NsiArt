@@ -8,9 +8,7 @@ import ctypes
 class PipeLine():
     def __init__(self,size):
 
-        self.size = size
-
-        if not isinstance(self.size,Vec2):
+        if not isinstance(size,Vec2):
             return TypeError("Size should be a Vec2.")
         
         self.size = size
@@ -26,6 +24,7 @@ class PipeLine():
 
     def clear_buffer(self): 
         self.BackgroundBuffer = (ctypes.c_uint32 * (self.size.y*self.size.x))()
+        self.ZMAP = [0] * self.size.x * self.size.y
 
     def render(self):
         self.BackgroundBuffer, self.ZMAP = self.FlatRenderer.render(self.size,self.BackgroundBuffer,self.ZMAP,self.EntityList[4],-999)
