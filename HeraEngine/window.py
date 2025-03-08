@@ -23,12 +23,15 @@ WHITE_BRUSH = 0
 SW_SHOWNORMAL = 1
 
 #Windows messages, used for having mouse position and keys and stuff
-WM_PAINT = 15
-WM_DESTROY = 2
-WM_MOUSEMOVE = 0x0200
-WM_KEYDOWN = 0x0100
-WM_KEYUP   = 0x0101
-WM_CHAR    = 0x0102
+WM_PAINT        = 15
+WM_DESTROY      = 0x0002
+WM_CLOSE        = 0x0010
+WM_QUIT         = 0x0012
+WM_MOUSEMOVE    = 0x0200
+WM_KEYDOWN      = 0x0100
+WM_KEYUP        = 0x0101
+WM_CHAR         = 0x0102
+WM_RBUTTONDOWN  = 0x0204
 
 #Windows types, useful for fullscreen
 WS_OVERLAPPEDWINDOW = 0x00CF0000
@@ -105,8 +108,9 @@ class BITMAPINFO(ct.Structure):
 
 
 class Window():
-    def __init__(self,core,size):
+    def __init__(self,core,size,cursor):
         self.core = core
+        self.cursor = cursor
 
         self.kernel32 = ct.WinDLL('kernel32', use_last_error=True)
         self.GetModuleHandle = self.kernel32.GetModuleHandleW
@@ -182,6 +186,7 @@ class Window():
         self.past_size = None
         self.fullscreen = False
         self.ready = False
+        self.kill = False
 
     def errcheck(self, result, func, args):
         if result is None or result == 0:
@@ -220,15 +225,21 @@ class Window():
         elif message == WM_MOUSEMOVE:
             x = ct.c_short(lParam & 0xffff).value
             y = ct.c_short((lParam >> 16) & 0xffff).value
-            print("Mouse moved to:", x, y)
-        return 0
+            self.cursor.window_register_action("move",x=x,y=y)
 
+            return 0
+
+        elif message == WM_RBUTTONDOWN:
+            self.cursor.window_register_action("rbuttondown")
+
+            return 0
 
         return self.DefWindowProc(hwnd, message, wParam, lParam)
 
     def SetPixelColor(self, x, y, color):
         if self.ready:
-            self.buffer[int(y * self.Size.y + x)] = color 
+            self.buffer[int(y * self.Size.x + x)] = color 
+            
 
     def GetFullscreenSize(self):
         return self.user32.GetSystemMetrics(SM_CXSCREEN),self.user32.GetSystemMetrics(SM_CYSCREEN)
@@ -288,15 +299,12 @@ class Window():
         self.gdi32.DeleteDC(hdc_mem)
 
     def keep_alive(self,msg):
-        while self.GetMessage(ct.byref(msg), None, 0, 0) != 0:
+        while self.GetMessage(ct.byref(msg), None, 0, 0) != 0 and not self.kill:
             self.TranslateMessage(ct.byref(msg))
             self.DispatchMessage(ct.byref(msg))
 
 
     def MainWin(self):
-        self.buffer = (ct.c_uint32 * (self.Size.x*self.Size.y))()
-
-
         self.wndclass = WNDCLASS()
         self.wndclass.style         = CS_HREDRAW | CS_VREDRAW
         self.wndclass.lpfnWndProc   = WNDPROC(self.WndProc)
@@ -331,6 +339,7 @@ class Window():
                             0)
             
             self.Size = Vec2(*self.GetFullscreenSize())
+        self.buffer = (ct.c_uint32 * (self.Size.x*self.Size.y))()
 
         self.user32.ShowWindow(self.hwnd, SW_SHOWNORMAL)
         self.user32.UpdateWindow(self.hwnd)

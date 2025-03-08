@@ -8,6 +8,7 @@ import ctypes
 from HeraEngine.logger import Logger
 from HeraEngine.childs.Entity import Entity
 from HeraEngine.render.pipeline import PipeLine
+from HeraEngine.cursor import Cursor
 
 from HeraEngine.types.Vec2 import Vec2
 
@@ -16,25 +17,31 @@ class Core():
 
         self.os = os.name
         self.is_windows = self.os == "nt"
-        self.log = Logger()
         self.running = False
         self.EntityList = {1:[],2:[],3:[],4:[]}
         self._fullscreen = False
         self._size = Vec2(500,500)
+
+        self.ver = "1.0.3"
+
+        self.log = Logger()
         self.Pipeline = PipeLine(self.size)
+        self.Cursor = Cursor()
+        self.clear = False
+
         self.tick_count = 0
         self.fps = 0
 
         if self.is_windows:
             self.log.DEBUG(f"Detected platform: Windows, importing window")
             from HeraEngine.window import Window
-            self.window = Window(self,self.size)
+            self.window = Window(self,self.size,self.Cursor)
             self.log.DEBUG(f"Loaded Window Size: {self.window.Size}")
 
         else:
             self.log.DEBUG(f"Detected platform: Unix (Max/Linux), importing pygame_adapter")
             from HeraEngine.pygame_adapter import Window
-            self.window = Window(self,self.size)
+            self.window = Window(self,self.size,self.Cursor)
             self.log.DEBUG(f"Loaded Window (PyGame Adapter) Size: {self.window.Size}")
 
         self.start = start
@@ -49,8 +56,8 @@ class Core():
     def fullscreen(self,value):
         self._fullscreen = value
         self.window.fullscreen = value
-        #fullsize = self.window.GetFullscreenSize()
-        #self.size = Vec2(fullsize[1],fullsize[0])
+        fullsize = self.window.GetFullscreenSize()
+        self.size = Vec2(fullsize[0],fullsize[1])
 
     @property
     def size(self):
@@ -81,7 +88,9 @@ class Core():
             self.log.DEBUG("Launched Update thread.")
             self.window.MainWin()
             self.log.INFO("Code Ended. Goodbye ;)")
-                    
+
+        except SystemExit:
+                raise
         except Exception as e:
             traceback.print_exc()
             self.log.ERROR(f"Failed to start: {e}")
@@ -91,18 +100,30 @@ class Core():
         while self.running:
             self.tick_count += 1
             try:
+
+                #Actual code that does everything, break this and everything explode.
                 start_time = time.time()
-                self.update(self)
-                self.Pipeline.update(EntityList=self.EntityList)
-                self.Pipeline.render()
-                self.window.buffer = self.Pipeline.BackgroundBuffer
-                self.window.update()
-                #self.Pipeline.clear_buffer()
+                self.Cursor.update()
+                self.update(self) #Run the update function
+                self.Pipeline.update(EntityList=self.EntityList) #Updates the pipeline with the existing entites, including positions and stuff because it might have changed 
+                self.Pipeline.render() #Drawing the screen
+                self.window.buffer = self.Pipeline.BackgroundBuffer #Updating the window data
+                self.window.update() #Drawing the window
+                if self.clear:
+                    self.Pipeline.clear_buffer()
                 end_time = time.time()
+
 
                 execution_time = end_time - start_time
                 execution_time += 0.00000001 #Prevent Divisions by 0 in fps calculation
                 self.fps = 1/execution_time
+            except SystemExit:
+                raise
             except Exception as e: 
                 traceback.print_exc()
                 self.log.ERROR(f"Failed to run update : {e}")
+                raise Exception("Crashed")
+            
+    def quit(self):
+        self.window.kill = True
+        quit(0)

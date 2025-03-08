@@ -1,7 +1,7 @@
 class Vec2:
     def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
 
 
     def __add__(self, other):
@@ -25,4 +25,4 @@ class Vec2:
         return self.__mul__(other)
 
     def __repr__(self):
-        return f"Vec2({self.x}, {self.y})"
+        return f"Vec2(x:{self.x}, y:{self.y})"

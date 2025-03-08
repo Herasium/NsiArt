@@ -45,5 +45,5 @@ class Vec3:
         return self.__mul__(other)
 
     def __repr__(self):
-        return f"Vec3({self.x}, {self.y}, {self.z})"
+        return f"Vec3(x:{self.x}, y:{self.y}, z:{self.z})"
     
