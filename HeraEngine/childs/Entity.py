@@ -27,6 +27,7 @@ class Entity:
         self._texture = None
         self.textured = False
         self.is_text = False
+        self.rotation = 0
 
         self.hitbox = BoxCollision(self._position,self._size)
         

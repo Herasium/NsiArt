@@ -1,12 +1,10 @@
+import os
 from PIL import Image
-
-file = "Assets/Textures/Menus/Main/title"
-
 
 def image_to_hex_list(image_path):
     img = Image.open(image_path).convert("RGBA")  
     pixels = list(img.getdata())  
-    hex_list = [str(img.size[0]),str(img.size[1])]
+    hex_list = [str(img.size[0]), str(img.size[1])]
 
     for r, g, b, a in pixels:
         if a == 0: 
@@ -16,9 +14,17 @@ def image_to_hex_list(image_path):
 
     return hex_list
 
-file_in = f"{file}.png"
-file_out = f"{file}.raw"
+def process_images_in_folder(folder):
+    for filename in os.listdir(folder):
+        if filename.lower().endswith(".png"): 
+            file_in = os.path.join(folder, filename)
+            file_out = os.path.join(folder, f"{os.path.splitext(filename)[0]}.raw")
+            
+            data = image_to_hex_list(file_in)
+            with open(file_out, "w") as file:
+                file.write(";".join(data))
+            
+            print(f"Converted: {filename} -> {os.path.basename(file_out)}")
 
-data = image_to_hex_list(file_in)
-with open(file_out,"w") as file:
-    file.write(str(";".join(data)))
+folder_path = "Assets/Textures/Minigames/Tree"
+process_images_in_folder(folder_path)

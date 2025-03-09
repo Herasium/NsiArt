@@ -32,6 +32,7 @@ WM_KEYDOWN      = 0x0100
 WM_KEYUP        = 0x0101
 WM_CHAR         = 0x0102
 WM_RBUTTONDOWN  = 0x0204
+WM_LBUTTONDOWN  = 0x0201
 
 #Windows types, useful for fullscreen
 WS_OVERLAPPEDWINDOW = 0x00CF0000
@@ -231,6 +232,11 @@ class Window():
 
         elif message == WM_RBUTTONDOWN:
             self.cursor.window_register_action("rbuttondown")
+
+            return 0
+        
+        elif message == WM_LBUTTONDOWN:
+            self.cursor.window_register_action("lbuttondown")
 
             return 0
 

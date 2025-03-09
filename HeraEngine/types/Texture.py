@@ -11,6 +11,17 @@ class Texture():
         self._original_array = np.array(self._original, dtype=np.uint32).reshape(self._original_size.y, self._original_size.x)
         self._resized_array = self._original_array
         self._size = self._original_size
+        self._rotation_buffer = {}
+
+    def get_rotation(self,angle):
+        key = f"x{self._size.x}y{self._size.y}a{angle}"
+        if key in self._rotation_buffer:
+            return self._rotation_buffer[key]
+        return None
+    
+    def store_rotation(self,angle,data):
+        key = f"x{self._size.x}y{self._size.y}a{angle}"
+        self._rotation_buffer[key] = data
 
     @property
     def data(self):

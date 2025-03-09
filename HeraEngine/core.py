@@ -15,6 +15,12 @@ from HeraEngine.types.Vec2 import Vec2
 class Core():
     def __init__(self,start,update):
 
+        self.ascii_art = """
+Powered by
+╦ ╦┌─┐┬─┐┌─┐╔═╗┌┐┌┌─┐┬┌┐┌┌─┐
+╠═╣├┤ ├┬┘├─┤║╣ ││││ ┬││││├┤ 
+╩ ╩└─┘┴└─┴ ┴╚═╝┘└┘└─┘┴┘└┘└─┘"""
+
         self.os = os.name
         self.is_windows = self.os == "nt"
         self.running = False
@@ -26,22 +32,24 @@ class Core():
 
         self.log = Logger()
         self.Pipeline = PipeLine(self.size)
-        self.Cursor = Cursor()
+        self.cursor = Cursor()
         self.clear = False
 
         self.tick_count = 0
         self.fps = 0
 
+        self.log.INFO(self.ascii_art)
+
         if self.is_windows:
             self.log.DEBUG(f"Detected platform: Windows, importing window")
             from HeraEngine.window import Window
-            self.window = Window(self,self.size,self.Cursor)
+            self.window = Window(self,self.size,self.cursor)
             self.log.DEBUG(f"Loaded Window Size: {self.window.Size}")
 
         else:
             self.log.DEBUG(f"Detected platform: Unix (Max/Linux), importing pygame_adapter")
             from HeraEngine.pygame_adapter import Window
-            self.window = Window(self,self.size,self.Cursor)
+            self.window = Window(self,self.size,self.cursor)
             self.log.DEBUG(f"Loaded Window (PyGame Adapter) Size: {self.window.Size}")
 
         self.start = start
@@ -76,6 +84,16 @@ class Core():
             self.EntityList[target.layer].append(target)
         else:
             raise TypeError("Target is not an Entity.")
+        
+    def remove_entity(self,target):
+        if target in self.EntityList[1]:
+            self.EntityList[1].remove(target)
+        if target in self.EntityList[2]:
+            self.EntityList[2].remove(target)
+        if target in self.EntityList[3]:
+            self.EntityList[3].remove(target)
+        if target in self.EntityList[4]:
+            self.EntityList[4].remove(target)
 
     def run(self):
         try:
@@ -103,7 +121,7 @@ class Core():
 
                 #Actual code that does everything, break this and everything explode.
                 start_time = time.time()
-                self.Cursor.update()
+                self.cursor.update()
                 self.update(self) #Run the update function
                 self.Pipeline.update(EntityList=self.EntityList) #Updates the pipeline with the existing entites, including positions and stuff because it might have changed 
                 self.Pipeline.render() #Drawing the screen

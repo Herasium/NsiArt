@@ -38,5 +38,7 @@ class Cursor():
                 self.send_events(self.on_move)
             if type == "rbuttondown":
                 self.send_events(self.on_right_click)
+            if type == "lbuttondown":
+                self.send_events(self.on_right_click)
 
         self._buffer = []
