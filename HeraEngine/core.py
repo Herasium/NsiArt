@@ -9,6 +9,7 @@ from HeraEngine.logger import Logger
 from HeraEngine.childs.Entity import Entity
 from HeraEngine.render.pipeline import PipeLine
 from HeraEngine.cursor import Cursor
+from HeraEngine.keyboard import Keyboard
 
 from HeraEngine.types.Vec2 import Vec2
 
@@ -33,6 +34,7 @@ Powered by
         self.log = Logger()
         self.Pipeline = PipeLine(self.size)
         self.cursor = Cursor()
+        self.keyboard = Keyboard()
         self.clear = False
 
         self.tick_count = 0
@@ -43,7 +45,7 @@ Powered by
         if self.is_windows:
             self.log.DEBUG(f"Detected platform: Windows, importing window")
             from HeraEngine.window import Window
-            self.window = Window(self,self.size,self.cursor)
+            self.window = Window(self,self.size,self.cursor,self.keyboard)
             self.log.DEBUG(f"Loaded Window Size: {self.window.Size}")
 
         else:
@@ -122,13 +124,15 @@ Powered by
                 #Actual code that does everything, break this and everything explode.
                 start_time = time.time()
                 self.cursor.update()
+                self.keyboard.update()
                 self.update(self) #Run the update function
                 self.Pipeline.update(EntityList=self.EntityList) #Updates the pipeline with the existing entites, including positions and stuff because it might have changed 
                 self.Pipeline.render() #Drawing the screen
                 self.window.buffer = self.Pipeline.BackgroundBuffer #Updating the window data
                 self.window.update() #Drawing the window
                 if self.clear:
-                    self.Pipeline.clear_buffer()
+                    self.Pipeline.clear_buffer() #If background always present, not used, add 15% to fps, pls do not set self.clear to True unless you hate performance
+                self.keyboard.last_pressed = []
                 end_time = time.time()
 
 
@@ -140,7 +144,6 @@ Powered by
             except Exception as e: 
                 traceback.print_exc()
                 self.log.ERROR(f"Failed to run update : {e}")
-                raise Exception("Crashed")
             
     def quit(self):
         self.window.kill = True

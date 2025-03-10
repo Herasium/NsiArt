@@ -14,3 +14,4 @@ from HeraEngine.types.Color import Color
 #Curves
 from HeraEngine.curves.elastic import elastic_interpolation
 from HeraEngine.curves.reverse_elastic import reverse_elastic_interpolation
+from HeraEngine.curves.bezier import bezier_quadratic,ease_in_out_quadratic_bezier

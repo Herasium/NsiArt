@@ -109,8 +109,9 @@ class BITMAPINFO(ct.Structure):
 
 
 class Window():
-    def __init__(self,core,size,cursor):
+    def __init__(self,core,size,cursor,keyboard):
         self.core = core
+        self.keyboard = keyboard
         self.cursor = cursor
 
         self.kernel32 = ct.WinDLL('kernel32', use_last_error=True)
@@ -214,14 +215,12 @@ class Window():
             self.PostQuitMessage(0)
             return 0
         elif message == WM_KEYDOWN:
-            print("Key down, VK code:", wParam)
+            self.keyboard.window_register_action("vk_key_down",keycode=wParam)
             return 0
         elif message == WM_KEYUP:
-            print("Key up, VK code:", wParam)
             return 0
         elif message == WM_CHAR:
             char = chr(wParam)
-            print("WM_CHAR received:", char)
             return 0
         elif message == WM_MOUSEMOVE:
             x = ct.c_short(lParam & 0xffff).value
