@@ -68,3 +68,5 @@ if __name__ == "__main__":
     print(f"\nCPU Score: {benchmark():.1f}")
 
 #PC Du lycée (salle nsi): 6.9 ; 30fps
+#PC CDI : 3.1 ; 20fps
+#PC Windows: 11.5

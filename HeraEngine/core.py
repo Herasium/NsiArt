@@ -10,11 +10,13 @@ from HeraEngine.childs.Entity import Entity
 from HeraEngine.render.pipeline import PipeLine
 from HeraEngine.cursor import Cursor
 from HeraEngine.keyboard import Keyboard
+from HeraEngine.benchmark import benchmark
+from HeraEngine.files.TextureLoader import TextureLoader
 
 from HeraEngine.types.Vec2 import Vec2
 
 class Core():
-    def __init__(self,start,update):
+    def __init__(self,start,update,asset_path):
 
         self.ascii_art = """
 Powered by
@@ -28,19 +30,34 @@ Powered by
         self.EntityList = {1:[],2:[],3:[],4:[]}
         self._fullscreen = False
         self._size = Vec2(500,500)
+        self._asset_path = asset_path
+        
+        self._categorize_cpu_score = lambda score: 1 if score >= 9 else 2 if score >= 7 else 3 if score >= 3 else 4
 
-        self.ver = "1.0.3"
+        self.ver = "1.0.4"
 
         self.log = Logger()
         self.Pipeline = PipeLine(self.size)
         self.cursor = Cursor()
         self.keyboard = Keyboard()
         self.clear = False
+        
+        self.log.INFO(self.ascii_art)
+        
+        self.cpu_score = benchmark()
+        self.log.INFO(f"Ran cpu benchmark. Score: {self.cpu_score}")
+        self.tick_update = 1
+        self.log.DEBUG(f"Current tick update: {self.tick_update}")
+        
+        self.texture_loader = TextureLoader(self._asset_path)
+        self.texture_loader.read_all()
+        self.texture_loader.load_all()
 
         self.tick_count = 0
         self.fps = 60
-
-        self.log.INFO(self.ascii_art)
+        self.fps_total = 0
+        self.average_fps = 0
+        
 
         if self.is_windows:
             self.log.DEBUG(f"Detected platform: Windows, importing window")
@@ -138,7 +155,9 @@ Powered by
                 execution_time = end_time - start_time
                 execution_time += 0.00000001 #Prevent Divisions by 0 in fps calculation
                 self.fps = 1/execution_time
-                self.tick_count += 60/self.fps
+                self.tick_count += self.tick_update
+                self.fps_total += self.fps
+                self.average_fps = self.fps_total / self.tick_count
             except SystemExit:
                 raise
             except Exception as e: 

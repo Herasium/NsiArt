@@ -10,6 +10,7 @@ class Collection:
         self.entity_list = {}
 
     def Entity(self,name,**kwargs):
+        kwargs["core"] = self._core
         new_entity = Entity(**kwargs)
         self._core.add_entity(new_entity)
         self.entity_list[name] = new_entity
@@ -17,6 +18,7 @@ class Collection:
 
     
     def Text(self,name,**kwargs):
+        kwargs["core"] = self._core
         new_entity = Text(**kwargs)
         self._core.add_entity(new_entity)
         self.entity_list[name] = new_entity

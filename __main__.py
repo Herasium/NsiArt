@@ -101,7 +101,7 @@ class Game:
                         entity = self.bg_collection.entity_list[i]
                         entity.start_x = entity.position.y
 
-    def update(self):
+    def update(self,*args):
         if not self._in_transition:
             self._update_cloud_positions()
             self._update_cursor_tracking()
@@ -116,6 +116,7 @@ class Game:
                     entity.position = Vec2(entity.position.x,reverse_elastic_interpolation(entity.start_x,entity.start_x+1080,(self.app.tick_count - (self.start_count+10*count))/200))
                     count += 1
             else:
+                self.technical_collection.quit()
                 self.bg_collection.quit()
                 self.tree = Tree(self.app)
                 self.tree.setup()
@@ -139,8 +140,7 @@ class Game:
         )
 
     def _update_fps_counter(self):
-        if self.app.tick_count % 10 == 0:
-            self.technical_collection.fps_counter.text = f"{int(self.app.fps)} FPS"
+        self.technical_collection.fps_counter.text = f"{int(self.app.fps)} FPS" + f" {int(self.app.average_fps)} Averages FPS"
 
 
 def start(app: Core):
@@ -149,5 +149,5 @@ def start(app: Core):
 def update(app: Core):
     app.game.update()
 
-app = Core(start=start, update=update)
+app = Core(start=start, update=update,asset_path="Assets")
 app.run()

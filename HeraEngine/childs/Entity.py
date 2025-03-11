@@ -5,7 +5,7 @@ from HeraEngine.types.Texture import Texture
 from HeraEngine.types.BoxCollision import BoxCollision
 
 class Entity:
-    def __init__(self, layer, size, position, **kwargs):
+    def __init__(self, layer, size, position,core= None, **kwargs):
         if layer not in {1, 2, 3, 4}:
             raise ValueError("Unknown Layer")
 
@@ -25,6 +25,7 @@ class Entity:
         self.flat = is_flat
         self.color = Color(255,255,255)
         self._texture = None
+        self._core = core
         self.textured = False
         self.is_text = False
         self.rotation = 0
@@ -74,7 +75,7 @@ class Entity:
     
     @texture.setter
     def texture(self,path):
-        self._texture = Texture(path)
+        self._texture = Texture(path,self._core)
         self.textured = True
         self._texture.size = self.size
 

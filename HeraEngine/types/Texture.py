@@ -6,8 +6,12 @@ from HeraEngine.types.Vec2 import Vec2
 import numpy as np
 
 class Texture():
-    def __init__(self,path):
-        self._original_size, self._original = BmpReader().read_file(path)
+    def __init__(self,path,core=None):
+        self._core = core
+        if self._core == None:
+            self._original_size, self._original = BmpReader().read_file(path)
+        else:
+            self._original_size, self._original = self._core.texture_loader.get_texture(path)
         self._original_array = np.array(self._original, dtype=np.uint32).reshape(self._original_size.y, self._original_size.x)
         self._resized_array = self._original_array
         self._size = self._original_size

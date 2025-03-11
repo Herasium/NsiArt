@@ -3,6 +3,7 @@ import time
 import threading
 import random
 from HeraEngine import *
+from MiniGames.game_over import GameOver
 
 
 class Tree():
@@ -19,6 +20,9 @@ class Tree():
         self.player_dead = False
         self.last_status = True
         self.finished_intro = False
+        self.freeze = False
+        self.win_transition = False
+        self.won = False
         self.intro_locations = {}
 
     def setup(self):
@@ -47,8 +51,6 @@ class Tree():
             Vec2(1124, 52 + (-2540)),
         ]]
         self._player_offset = [Vec2(250,140),Vec2(192,140),Vec2(304,140),Vec2(144,140)] #rotten left, rotten right, good left, good right
-        self._core.log.DEBUG(str(self._branch_list))
-
     def _setup_clouds(self):
         textures = [
             ("background", "1.raw"),("behind_clouds_copy", "2.raw"), ("behind_clouds", "2.raw"),
@@ -150,6 +152,11 @@ class Tree():
 
     def setup_map(self):
         self.map = Collection(self._core)
+        self.map.Entity(
+            "background", layer=layers.background,
+            size=Vec2(1920, 1080), position=Vec2(0, 0),
+            color=Color(0, 0, 0)
+        )
         self._setup_clouds()
         self._setup_floor()
         self._setup_tree()
@@ -162,12 +169,12 @@ class Tree():
             getattr(self.map,f"floor_{i+1}").position = Vec2(-1150 +1280*i,-200) - Vec2(0,self.offset_y)
             
     def _update_intro(self):
-        if (self._core.tick_count-(self.start_intro_time+10*len(self.map.entity_list))) < 100:
+        if (self._core.tick_count-(self.start_intro_time+3*len(self.map.entity_list))) < 100:
             count = 0
             for i in self.map.entity_list:
                 entity = self.map.entity_list[i]
                 target = self.intro_locations[entity] if entity in self.intro_locations else Vec2(0,0)
-                entity.position = elastic_interpolation(Vec2(target.x,1080),target,(self._core.tick_count-(self.start_intro_time+10*count))/100)
+                entity.position = elastic_interpolation(Vec2(target.x,1080),target,(self._core.tick_count-(self.start_intro_time+3*count))/100)
                 count += 1
         else:
             self.finished_intro = True
@@ -196,23 +203,31 @@ class Tree():
             for key in self._core.keyboard.last_pressed:
                 if not self.player_in_transition and not self.player_dead:
                     if self._core.keyboard.get_key(key) == "right_arrow":
-                        self.player_branch += 1
-                        self.player_side = True
-                        self.target_offset_y = self.offset_y - 340
-                        self._update_player_transition(self.player_position,self._offset[1][self.player_branch] + self._player_offset[3 if not self._branch_list[self.player_branch] else 1])
-
+                        if not self.player_branch == 8:
+                            self.player_branch += 1
+                            self.player_side = True
+                            self.target_offset_y = self.offset_y - 340
+                            self._update_player_transition(self.player_position,self._offset[1][self.player_branch] + self._player_offset[3 if not self._branch_list[self.player_branch] else 1])
+                        else:
+                            self.target_offset_y = -3351
+                            self._update_player_transition(self.player_position,Vec2(935,827 + (-3351)))
+                            self.won = True
                     if self._core.keyboard.get_key(key) == "left_arrow":
-                        self.player_branch += 1
-                        self.player_side = False
-                        self.target_offset_y = self.offset_y - 340
-                        self._update_player_transition(self.player_position,self._offset[0][self.player_branch] + self._player_offset[2 if self._branch_list[self.player_branch] else 0])
-
-                
-        self._update_cloud_positions()
-        self._update_tree_positions()
-        if not self.player_dead:
-            self._update_branch_positions()
-        self._update_floor()
+                        if not self.player_branch == 8:
+                            self.player_branch += 1
+                            self.player_side = False
+                            self.target_offset_y = self.offset_y - 340
+                            self._update_player_transition(self.player_position,self._offset[0][self.player_branch] + self._player_offset[2 if self._branch_list[self.player_branch] else 0])
+                        else:
+                            self.target_offset_y = -3351
+                            self._update_player_transition(self.player_position,Vec2(935,827 + (-3351)))
+                            self.won = True
+        if not self.freeze:
+            self._update_cloud_positions()
+            self._update_tree_positions()
+            if not self.player_dead:
+                self._update_branch_positions()
+            self._update_floor()
         if self.player_dead:
             self._update_game_over()
         else:
@@ -229,35 +244,43 @@ class Tree():
         show = self._offset[1 if self.player_side else 0][self.player_branch]
         hide = Vec2(-1000,-1000) 
         
-        if self.d < 90 and branch_exist:
+        if self.d < 50:
+            pass
+        
+        elif self.d < 90 and branch_exist:
             if self.last_status != False:
                 self.last_status = False
                 branch.position = hide
-                print("hide",self.d)
         elif self.d < 120 and branch_exist :
             if self.last_status != True:
                 self.last_status = True
                 branch.position = show - Vec2(0,self.offset_y)
-                print("show",self.d)
         elif self.d < 150 and branch_exist :
             if self.last_status != False:
                 self.last_status = False
                 branch.position = hide
-                print("hide",self.d)
         elif self.d < 180 and branch_exist :
             if self.last_status != True:
                 self.last_status = True
                 branch.position = show - Vec2(0,self.offset_y)
-                print("show",self.d)
         elif self.d < 210 and branch_exist :
             if self.last_status != False:
                 self.last_status = False
                 branch.position = hide
-                print("hide",self.d)
+
                 
         elif self.d < 310:
+            self.freeze = True
+            for i in self.map.entity_list:
+                entity = self.map.entity_list[i]
+                entity.position = entity.position - Vec2(0,100)
             self.player_position = reverse_elastic_interpolation(self.player_transition_end,self.player_transition_end + Vec2(0,1080),(self._core.tick_count - (self.player_kill_tick+210))/100)
 
+        else:
+            self.game_over = GameOver(self._core)
+            self.map.quit()
+            self.branch_collection.quit()
+            
        
     def _update_player_transition(self,start = None,end = None):
         if not self.player_in_transition:
@@ -273,17 +296,26 @@ class Tree():
             else:
                 self.player_position = self.player_transition_end
                 self.player_in_transition = False
-                if self._branch_list[self.player_branch] == self.player_side:
-                    self.player_dead = True
-                    self.player_kill_tick = self._core.tick_count
-                    self.offset_y = self.target_offset_y-1
-                    self._update_branch_positions()
+                if not self.won:
+                    if self._branch_list[self.player_branch] == self.player_side:
+                        self.player_dead = True
+                        self.player_kill_tick = self._core.tick_count
+                        self.offset_y = self.target_offset_y-1
+                        self._update_branch_positions()
+                else:
+                    self.freeze = True
+                    self.win_transition = True
     
 
     def setup_transition(self):
         self.start_count = self._core.tick_count
         self._chaged_start = False
         self.transition_collection = Collection(self._core)
+        self.transition_collection.Entity(
+            "background", layer=layers.background,
+            size=Vec2(1920, 1080), position=Vec2(0, 0),
+            color=Color(0, 0, 0)
+        )
         self.transition_collection.Entity("d",layer=layers.background,position = Vec2(825,-490),size=Vec2(30,52),texture="Assets/Textures/Transition/Dream1/D.raw")
         self.transition_collection.Entity("r",layer=layers.background,position = Vec2(857,-505),size=Vec2(30,38),texture="Assets/Textures/Transition/Dream1/r.raw")
         self.transition_collection.Entity("e",layer=layers.background,position = Vec2(890,-505),size=Vec2(30,38),texture="Assets/Textures/Transition/Dream1/e.raw")
