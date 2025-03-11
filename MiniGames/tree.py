@@ -195,13 +195,13 @@ class Tree():
         else:
             for key in self._core.keyboard.last_pressed:
                 if not self.player_in_transition and not self.player_dead:
-                    if self._core.keyboard.key_codes[key] == "right_arrow":
+                    if self._core.keyboard.get_key(key) == "right_arrow":
                         self.player_branch += 1
                         self.player_side = True
                         self.target_offset_y = self.offset_y - 340
                         self._update_player_transition(self.player_position,self._offset[1][self.player_branch] + self._player_offset[3 if not self._branch_list[self.player_branch] else 1])
 
-                    if self._core.keyboard.key_codes[key] == "left_arrow":
+                    if self._core.keyboard.get_key(key) == "left_arrow":
                         self.player_branch += 1
                         self.player_side = False
                         self.target_offset_y = self.offset_y - 340

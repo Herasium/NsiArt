@@ -9,7 +9,7 @@ class Keyboard():
         self.on_press = []
         self._buffer = []
         
-        self.key_codes = {
+        self._key_codes = {
             32:"space",
             37:"left_arrow",
             38:"up_arrow",
@@ -25,6 +25,11 @@ class Keyboard():
 
     def window_register_action(self,type,**kwargs):
         self._buffer.append([type,kwargs])
+
+    def get_key(self,key):
+        if key in self._key_codes:
+            return self._key_codes[key]
+        return None
 
     def update(self):
         for i in self._buffer:

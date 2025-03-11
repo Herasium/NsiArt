@@ -38,7 +38,7 @@ Powered by
         self.clear = False
 
         self.tick_count = 0
-        self.fps = 0
+        self.fps = 60
 
         self.log.INFO(self.ascii_art)
 
@@ -118,7 +118,6 @@ Powered by
     @profile
     def run_updates(self):
         while self.running:
-            self.tick_count += 1
             try:
 
                 #Actual code that does everything, break this and everything explode.
@@ -139,6 +138,7 @@ Powered by
                 execution_time = end_time - start_time
                 execution_time += 0.00000001 #Prevent Divisions by 0 in fps calculation
                 self.fps = 1/execution_time
+                self.tick_count += 60/self.fps
             except SystemExit:
                 raise
             except Exception as e: 
