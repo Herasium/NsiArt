@@ -26,6 +26,10 @@ class Game:
         self.app.monogram = Font("Monogram")
         self.app.monogram.size = Vec2(x=13, y=28)
         self.app.monogram.offset = Vec2(-2, 0)
+        
+        self.app.monogram_big = Font("MonogramBig")
+        self.app.monogram_big.size = Vec2(x=48, y=48)
+        self.app.monogram_big.offset = Vec2(-28, 0)
 
     def _create_collections(self):
         self.bg_collection = Collection(self.app)

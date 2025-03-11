@@ -3,8 +3,8 @@ from PIL import Image
 # The same character set from your Kaboom loadFont call:
 CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
-TILE_WIDTH = 18
-TILE_HEIGHT = 28
+TILE_WIDTH = 48
+TILE_HEIGHT = 48
 
 def load_font(image_path, chars=CHARS, tile_width=TILE_WIDTH, tile_height=TILE_HEIGHT):
     """
@@ -59,8 +59,8 @@ char_to_sanitized = {' ': 'space', '!': 'exclamation_mark', '"': 'double_quote',
 
 if __name__ == "__main__":
     # Example usage
-    file = "Assets/Textures/Fonts/Monogram/"
-    glyphs = load_font("HeraEngine/tools/normal.png")
+    file = "Assets/Textures/Fonts/MonogramBig/"
+    glyphs = load_font("HeraEngine/tools/big.png")
     print(f"Loaded {len(glyphs)} glyph images.")
 
 

@@ -24,6 +24,7 @@ class Tree():
         self.win_transition = False
         self.won = False
         self.intro_locations = {}
+        self.start_win = 0
 
     def setup(self):
         self.setup_transition()
@@ -48,7 +49,7 @@ class Tree():
             Vec2(1200, 20 + (-1460)),
             Vec2(1104, 42 + (-1770)),
             Vec2(1152, 43 + (-2180)),
-            Vec2(1124, 52 + (-2540)),
+            Vec2(1224, 52 + (-2540)),
         ]]
         self._player_offset = [Vec2(250,140),Vec2(192,140),Vec2(304,140),Vec2(144,140)] #rotten left, rotten right, good left, good right
     def _setup_clouds(self):
@@ -179,6 +180,26 @@ class Tree():
         else:
             self.finished_intro = True
 
+    def _update_win_tansition(self):
+        self.d = self._core.tick_count - self.start_win
+        
+        self.text_collection = Collection(self._core)
+        self.text_collection.Entity(layer=layers.background,name="text_bg",size=Vec2(1260,252),position = Vec2(330,-250),texture ="Assets/Textures/Fonts/Background/back_1.raw")
+
+        self.text_collection.Text(layer=layers.background,name="textline",font=self._core.monogram_big,position = Vec2(360,295),size = Vec2(50,500),text="")
+
+        self.cut_text = lambda s, x: s[:int(len(s) * x)]
+    
+        if self.d < 50:
+            pass
+        elif self.d < 350:
+            self.player_position = ease_in_out(Vec2(935,827 + (-3351)),Vec2(1293,827 + (-3351)),(self._core.tick_count - self.start_win-50)/300)
+        elif self.d < 400:
+            self.player_position = Vec2(1293,827 + (-3351))
+        elif self.d < 501:
+            self.text_collection.text_bg.position = Vec2(330,250)
+            self.text_collection.textline.text = self.cut_text("Pourquoi fais-tu tout cela ?",(self._core.tick_count - self.start_win-400)/100)
+
     def update(self,_):
         if self.in_transition:
             self.update_transition()
@@ -201,7 +222,7 @@ class Tree():
             self._update_player_transition()
         else:
             for key in self._core.keyboard.last_pressed:
-                if not self.player_in_transition and not self.player_dead:
+                if not self.player_in_transition and not self.player_dead and not self.won:
                     if self._core.keyboard.get_key(key) == "right_arrow":
                         if not self.player_branch == 8:
                             self.player_branch += 1
@@ -209,7 +230,11 @@ class Tree():
                             self.target_offset_y = self.offset_y - 340
                             self._update_player_transition(self.player_position,self._offset[1][self.player_branch] + self._player_offset[3 if not self._branch_list[self.player_branch] else 1])
                         else:
+                            self.offset_y = -3351
                             self.target_offset_y = -3351
+                            self.freeze = True
+                            self._update_branch_positions()
+                            self._update_tree_positions()
                             self._update_player_transition(self.player_position,Vec2(935,827 + (-3351)))
                             self.won = True
                     if self._core.keyboard.get_key(key) == "left_arrow":
@@ -219,7 +244,11 @@ class Tree():
                             self.target_offset_y = self.offset_y - 340
                             self._update_player_transition(self.player_position,self._offset[0][self.player_branch] + self._player_offset[2 if self._branch_list[self.player_branch] else 0])
                         else:
+                            self.offset_y = -3351
                             self.target_offset_y = -3351
+                            self.freeze = True
+                            self._update_branch_positions()
+                            self._update_tree_positions()
                             self._update_player_transition(self.player_position,Vec2(935,827 + (-3351)))
                             self.won = True
         if not self.freeze:
@@ -228,10 +257,13 @@ class Tree():
             if not self.player_dead:
                 self._update_branch_positions()
             self._update_floor()
+            if not self.player_dead:
+                self.offset_y += (self.target_offset_y - self.offset_y)/10
+
         if self.player_dead:
             self._update_game_over()
-        else:
-            self.offset_y += (self.target_offset_y - self.offset_y)/10
+        if self.win_transition:
+            self._update_win_tansition()
         self.player.position = self.player_position - Vec2(0,self.offset_y)
         self.branch_collection.position_debug.text="Mouse position: " + str(self._core.cursor.position) + " Offset: " + str(self.offset_y) + " Fps: "+str(int(self._core.fps)) + " Delta: " +str(getattr(self,"d",None)) + str(self.player_position)
        
@@ -304,6 +336,7 @@ class Tree():
                         self._update_branch_positions()
                 else:
                     self.freeze = True
+                    self.start_win = self._core.tick_count
                     self.win_transition = True
     
 
