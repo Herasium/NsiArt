@@ -17,7 +17,6 @@ class PipeLine():
             return TypeError("Size should be a Vec2.")
         
         self.EntityList = {1:[],2:[],3:[],4:[]}
-        self.ZMAP = (ctypes.c_int32 * (self.size.x * self.size.y))()
         self.BackgroundBuffer = (ctypes.c_uint32 * (self.size.y*self.size.x))()
 
         self.FlatRenderer = FlatRenderer(self.core)
@@ -29,7 +28,6 @@ class PipeLine():
     @profile
     def clear_buffer(self): 
         self.BackgroundBuffer = (ctypes.c_uint32 * (self.size.y*self.size.x))()
-        self.ZMAP = (ctypes.c_int32 * (self.size.x * self.size.y))()
-
+    @profile
     def render(self):
-        self.BackgroundBuffer, self.ZMAP = self.FlatRenderer.render(self.size,self.target_size,self.BackgroundBuffer,self.ZMAP,self.EntityList[4],-999)
+        self.BackgroundBuffer = self.FlatRenderer.render(self.size,self.target_size,self.BackgroundBuffer,self.EntityList[4],-999)

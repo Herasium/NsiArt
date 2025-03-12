@@ -3,14 +3,15 @@ from HeraEngine.types.Font import Font
 
 from HeraEngine.childs.Entity import Entity
 import numpy as np
+from line_profiler import profile
 
 class FlatRenderer():
     def __init__(self,core):
         self.core = core
-
-    def render(self, size: Vec2,target:Vec2, buffer, zmap, entityList: list[Entity], z: int):
+    @profile
+    def render(self, size: Vec2,target:Vec2, buffer, entityList: list[Entity], z: int):
         buffer_np = np.frombuffer(buffer, dtype=np.uint32).reshape(size.y, size.x)
-        zmap_np = np.frombuffer(zmap, dtype=np.int32).reshape(size.y, size.x)
+       
         
         for entity in entityList:
             if not isinstance(entity, Entity):
@@ -20,18 +21,18 @@ class FlatRenderer():
             ent_size = entity.size
 
             if entity.is_text == True:
-                self.render_text(entity, buffer_np, zmap_np, z, size, pos)
+                self.render_text(entity, buffer_np, z, size, pos)
                 continue
             
             if entity.textured:
-                self.render_textured(entity, buffer_np, zmap_np, z, size, pos, ent_size)
+                self.render_textured(entity, buffer_np, z, size, pos, ent_size)
                 continue
                 
-            self.render_square(buffer_np, zmap_np, z, size, pos, ent_size, entity.color.value)
+            self.render_square(buffer_np, z, size, pos, ent_size, entity.color.value)
     
-        return buffer, zmap
+        return buffer
 
-    def render_text(self, entity, buffer_np, zmap_np, z, size, pos):
+    def render_text(self, entity, buffer_np, z, size, pos):
         font = entity.font
         if not isinstance(font,Font):
             raise TypeError("Entity doesn't have valid Font.")
@@ -55,12 +56,11 @@ class FlatRenderer():
 
             non_zero_mask = texture_patch != 0
             np.copyto(buffer_view, texture_patch, where=non_zero_mask)
-            np.copyto(zmap_np[buf_y_start:buf_y_end, buf_x_start:buf_x_end], z, where=non_zero_mask)
             offset += font_size.x
             offset += font.offset.x
 
-
-    def render_textured(self, entity, buffer_np, zmap_np, z, size, pos, ent_size):
+    @profile
+    def render_textured(self, entity, buffer_np, z, size, pos, ent_size):
         texture_data = entity.texture.data
         rotation = int(getattr(entity, 'rotation', 0)*10)/10
         if rotation != 0:
@@ -96,7 +96,7 @@ class FlatRenderer():
         non_zero_mask = texture_patch != 0
 
         np.copyto(buffer_view, texture_patch, where=non_zero_mask)
-        np.copyto(zmap_np[buf_y_start:buf_y_end, buf_x_start:buf_x_end], z, where=non_zero_mask)
+
 
 
     def rotate_image(self, image, angle):
@@ -134,7 +134,7 @@ class FlatRenderer():
         
         return rotated, Vec2(new_w, new_h)
 
-    def render_square(self, buffer_np, zmap_np, z, size, pos, ent_size, color):
+    def render_square(self, buffer_np, z, size, pos, ent_size, color):
         y_start, y_end = np.clip([pos.y, pos.y + ent_size.y], 0, size.y)
         x_start, x_end = np.clip([pos.x, pos.x + ent_size.x], 0, size.x)
         
@@ -143,5 +143,4 @@ class FlatRenderer():
 
         buffer_slice = buffer_np[y_start:y_end, x_start:x_end]
         buffer_slice[:] = color
-        zmap_np[y_start:y_end, x_start:x_end] = z
 

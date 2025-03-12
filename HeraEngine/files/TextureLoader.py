@@ -5,8 +5,9 @@ from HeraEngine.types.Vec2 import Vec2
 import os   
 
 class TextureLoader:
-    def __init__(self,asset_folder):
+    def __init__(self,asset_folder,core):
         self._reader = BmpReader()
+        self._core = core
         self._asset_path = asset_folder
         self._path_list = []
         
@@ -29,7 +30,10 @@ class TextureLoader:
             self.logger.DEBUG(f"Loaded file {i}")
             
     def get_texture(self,path):
-        path = path.replace("/","\\")
+        if self._core.is_windows:
+            path = path.replace("/","\\")
+        else:
+            path = path.replace("\\","/")
         if path in self.data:
             return self.data[path]
         else:

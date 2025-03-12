@@ -2,14 +2,19 @@ import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import threading
+import numpy as np
 from HeraEngine.types.Vec2 import Vec2
+from line_profiler import profile
 
 class Window():
-    def __init__(self, core):
+    def __init__(self, core,Size,cursor,keyboard):
+
         self.core = core
+        self.cursor = cursor
+        self.keyboard = keyboard
 
         self.Title = "Default Window"
-        self.Size = Vec2(100,100)
+        self.Size = Size
         self.past_size = None
         self.ready = False
         self.running = False
@@ -25,12 +30,12 @@ class Window():
         if self.ready:
             rgb_color = self.hex_to_rgb(color)
             if  x < self.Size.x and y < self.Size.y:
-                self.buffer[x, y] = rgb_color
+                self.buffer[x, y] = rgb_color 
 
-    def SetWindowSize(self, size):
-        if not isinstance(size,Vec2):
+    def SetWindowSize(self, Size):
+        if not isinstance(Size,Vec2):
             raise TypeError("Window size must be a Vec2")
-        self.Size = size
+        self.Size = Size
 
 
 
@@ -38,9 +43,11 @@ class Window():
         if self.ready:
             self.buffer.fill(0x000000)
 
+    @profile
     def update(self):
         if self.ready:
-            pygame.surfarray.blit_array(self.screen, self.buffer)
+            buffer_np = np.frombuffer(self.buffer, dtype=np.uint32).reshape(self.Size.y, self.Size.x)
+            pygame.surfarray.blit_array(self.screen, buffer_np)
             pygame.display.flip()
 
     def handle_events(self):
@@ -68,3 +75,6 @@ class Window():
 
         self.keep_alive()
         return 0
+
+    def GetFullscreenSize(self):
+            return (1920, 1080)

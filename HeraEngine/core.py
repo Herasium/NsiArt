@@ -29,7 +29,7 @@ Powered by
         self.running = False
         self.EntityList = {1:[],2:[],3:[],4:[]}
         self._fullscreen = False
-        self._size = Vec2(500,500)
+        self._size = Vec2(1920,1080)
         self._asset_path = asset_path
         
         self._categorize_cpu_score = lambda score: 1 if score >= 9 else 2 if score >= 7 else 3 if score >= 3 else 4
@@ -49,7 +49,7 @@ Powered by
         self.tick_update = 1
         self.log.DEBUG(f"Current tick update: {self.tick_update}")
         
-        self.texture_loader = TextureLoader(self._asset_path)
+        self.texture_loader = TextureLoader(self._asset_path,self)
         self.texture_loader.read_all()
         self.texture_loader.load_all()
 
@@ -71,7 +71,7 @@ Powered by
         else:
             self.log.DEBUG(f"Detected platform: Unix (Max/Linux), importing pygame_adapter")
             from HeraEngine.pygame_adapter import Window
-            self.window = Window(self,self.size,self.cursor)
+            self.window = Window(self,self.size,self.cursor,self.keyboard)
             self.log.DEBUG(f"Loaded Window (PyGame Adapter) Size: {self.window.Size}")
 
         self.start = start
