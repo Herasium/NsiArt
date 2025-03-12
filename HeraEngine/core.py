@@ -37,7 +37,7 @@ Powered by
         self.ver = "1.0.4"
 
         self.log = Logger()
-        self.Pipeline = PipeLine(self.size)
+        self.Pipeline = PipeLine(self)
         self.cursor = Cursor()
         self.keyboard = Keyboard()
         self.clear = False
@@ -52,6 +52,9 @@ Powered by
         self.texture_loader = TextureLoader(self._asset_path)
         self.texture_loader.read_all()
         self.texture_loader.load_all()
+
+        self.basic_screen_size = Vec2(1920,1080)
+        self.target_ratio = 16/9
 
         self.tick_count = 0
         self.fps = 60
@@ -74,6 +77,13 @@ Powered by
         self.start = start
         self.update = update
 
+    def calculate_max_dimensions(self,width, height, ratio):
+        max_height = width / ratio
+        if max_height > height:
+            max_width = height * ratio
+            return Vec2(max_width, height)
+        else:
+            return Vec2(width, max_height)
 
     @property
     def fullscreen(self):
@@ -85,6 +95,13 @@ Powered by
         self.window.fullscreen = value
         fullsize = self.window.GetFullscreenSize()
         self.size = Vec2(fullsize[0],fullsize[1])
+        self.ratio = fullsize[1]/fullsize[0]
+        self.log.INFO(f"Launched Game in fullscreen. Basic Size: {self.basic_screen_size}, Target Size: {self.size}")
+        self.log.INFO(f"Basic ratio: {self.target_ratio}, Target ration: {self.ratio}")
+        if self.ratio != self.target_ratio:
+            self.size = self.calculate_max_dimensions(self.size.x,self.size.y,self.target_ratio)
+            self.log.INFO(f"New max size with ratio: {self.size}")
+            self.Pipeline.target_size=self.size
 
     @property
     def size(self):

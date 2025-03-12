@@ -2,14 +2,13 @@ from HeraEngine.types.Vec2 import Vec2
 from HeraEngine.types.Font import Font
 
 from HeraEngine.childs.Entity import Entity
-
 import numpy as np
 
 class FlatRenderer():
-    def __init__(self):
-        pass
+    def __init__(self,core):
+        self.core = core
 
-    def render(self, size: Vec2, buffer, zmap, entityList: list[Entity], z: int):
+    def render(self, size: Vec2,target:Vec2, buffer, zmap, entityList: list[Entity], z: int):
         buffer_np = np.frombuffer(buffer, dtype=np.uint32).reshape(size.y, size.x)
         zmap_np = np.frombuffer(zmap, dtype=np.int32).reshape(size.y, size.x)
         
@@ -29,7 +28,7 @@ class FlatRenderer():
                 continue
                 
             self.render_square(buffer_np, zmap_np, z, size, pos, ent_size, entity.color.value)
-
+    
         return buffer, zmap
 
     def render_text(self, entity, buffer_np, zmap_np, z, size, pos):
