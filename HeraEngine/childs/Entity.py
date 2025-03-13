@@ -75,9 +75,16 @@ class Entity:
     
     @texture.setter
     def texture(self,path):
-        self._texture = Texture(path,self._core)
-        self.textured = True
-        self._texture.size = self.size
+        if isinstance(path,str):
+            self._texture = Texture(path,self._core)
+            self.textured = True
+            self._texture.size = self.size
+        elif isinstance(path,Texture):
+            self._texture = path
+            self.textured = True
+            self._texture.size = self.size
+        else:
+            raise TypeError("Path should be a str or a Texture object.")
 
     def collide(self,target):
         if not isinstance(target,Entity):

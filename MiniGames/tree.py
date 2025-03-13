@@ -4,6 +4,7 @@ import threading
 import random
 from HeraEngine import *
 from MiniGames.game_over import GameOver
+from MiniGames.game_over_glitched import GameOverGlitched
 
 
 class Tree():
@@ -26,6 +27,8 @@ class Tree():
         self.intro_locations = {}
         self.start_win = 0
         self.setup_won = False 
+        self.normal_texture = Texture("Assets/Textures/Minigames/Tree/prune.raw",self._core)
+        self.jump_texture = Texture("Assets/Textures/Minigames/Tree/prune_jump.raw",self._core)
 
     def setup(self):
         self.setup_transition()
@@ -149,7 +152,7 @@ class Tree():
                 texture=f"Assets/Textures/Minigames/Tree/rotten_left.raw")
 
     def _setup_player(self):
-        self.player = Entity(layer=layers.background,size=Vec2(50,100),position=self.player_position,color=Color(255,0,0),texture="Assets/Textures/Minigames/Tree/prune.raw")
+        self.player = Entity(layer=layers.background,size=Vec2(50,100),position=self.player_position,color=Color(255,0,0),texture=self.normal_texture)
         self._core.add_entity(self.player)
 
     def setup_map(self):
@@ -191,36 +194,33 @@ class Tree():
             self.win_collection.Entity(layer=layers.background,name="text_bg",size=Vec2(1260,252),position = Vec2(330,-250),texture ="Assets/Textures/Fonts/Background/back_1.raw")
             self.win_collection.Text(layer=layers.background,name="textline",font=self._core.monogram_big,position = Vec2(360,295),size = Vec2(50,500),text="")
 
-            self.win_collection.Entity(name="prune",size=Vec2(150,300),position=Vec2(-486,240),color = Color(255,255,255), layer=layers.background)
-            self.win_collection.Entity(name="brenda",size=Vec2(150,300),position=Vec2(-266,240),color = Color(255,255,255), layer=layers.background)
-            self.win_collection.Entity(name="arm_brenda",size=Vec2(150,28),position=Vec2(-266,350),color = Color(255,255,255), layer=layers.background)
+            self.win_collection.Entity(name="prune",size=Vec2(300,600),position=Vec2(-436,-60),color = Color(255,255,255), layer=layers.background, texture = "Assets/Textures/Minigames/Tree/prune_white.raw")
+            self.win_collection.Entity(name="brenda",size=Vec2(300,600),position=Vec2(-1136,-60),color = Color(255,255,255), layer=layers.background, texture = "Assets/Textures/Minigames/Tree/brenda_white.raw")
+            self.win_collection.Entity(name="arm_brenda",size=Vec2(143,26),position=Vec2(-347,374),color = Color(255,255,255), layer=layers.background, texture = "Assets/Textures/Minigames/Tree/brenda_arm.raw")
             self.win_collection.Entity(name="floor",size=Vec2(636,32),position=Vec2(0,-540),color = Color(255,255,255), layer=layers.background)
 
             self.cut_text = lambda s, x: s[:int(len(s) * x)]
             self.setup_won = True
             self.cleaned = False
 
-        self.death_fall_duration = 200
-        self.death_fall_offset = 20
+        self.death_fall_duration = 75
+        self.death_fall_offset = 10
     
         if self.d < 50:
             pass
-        elif self.d < 350:
-            self.player_position = ease_in_out(Vec2(935,827 + (-3351)),Vec2(1293,827 + (-3351)),(self._core.tick_count - self.start_win-50)/300)
-        elif self.d < 400:
-            self.player_position = Vec2(1293,827 + (-3351))
-        elif self.d < 600:
+        elif self.d < 550:
             self.win_collection.text_bg.position = Vec2(330,250)
-            self.win_collection.textline.text = self.cut_text("Pourquoi fais-tu tout cela ?",(self._core.tick_count - self.start_win-400)/100)
+            self.win_collection.textline.text = self.cut_text("Pourquoi fais-tu tout cela ?",min(1,(self._core.tick_count - self.start_win-50)/350))
         elif self.d < 620:
             if not self.cleaned:
                 self.cleaned = True
+                self._core.remove_entity(self.player)
                 self.map.quit()
             self.win_collection.text_bg.position = Vec2(1920,1080)
             self.win_collection.textline.text = ""
             self.win_collection.white.position = Vec2(0,0)
             self.win_collection.floor.position = Vec2(0,540)
-            self.win_collection.prune.position = Vec2(486,240)
+            self.win_collection.prune.position = Vec2(436,-60)
 
         elif self.d < 640:
             self.win_collection.white.position = Vec2(1920,1080)
@@ -232,8 +232,8 @@ class Tree():
         elif self.d < 680:
             self.win_collection.white.position = Vec2(1920,1080)
             self.win_collection.black.position = Vec2(0,0)
-            self.win_collection.arm_brenda.position = Vec2(266,350)
-            self.win_collection.brenda.position = Vec2(266,240)
+            self.win_collection.arm_brenda.position = Vec2(1921,1081)
+            self.win_collection.brenda.position = Vec2(136,-60)
         elif self.d < 1080:
             self.win_collection.textline.position = Vec2(265,765)
             self.win_collection.textline.text = self.cut_text("Tu sais que tu t'infliges tout toute seule...",(self._core.tick_count - self.start_win-680)/100)
@@ -241,66 +241,79 @@ class Tree():
             self.win_collection.textline.text = self.cut_text("Prune.",(self._core.tick_count - self.start_win-1080)/300)
         elif self.d < 1620:
             self.win_collection.textline.text = ""
-            self.win_collection.arm_brenda.position =ease_in_out(Vec2(266,350),Vec2(416,350),(self._core.tick_count - self.start_win-1580)/30)
-            self.win_collection.prune.position = ease_in_out(Vec2(486,240),Vec2(636,240),(self._core.tick_count - self.start_win-1590)/30)
+            self.win_collection.brenda.texture = "Assets/Textures/Minigames/Tree/brenda_white_no_arm.raw"
+            self.win_collection.arm_brenda.position =ease_in_out(Vec2(200,374),Vec2(347,374),(self._core.tick_count - self.start_win-1580)/30)
+            self.win_collection.prune.position = ease_in_out(Vec2(436,-60),Vec2(636,-60),(self._core.tick_count - self.start_win-1600)/20)
         elif self.d < 1620+self.death_fall_offset * 1:
             self.win_collection.white.position = Vec2(0,0)
             self.win_collection.black.position = Vec2(1920,1080)
             self.win_collection.brenda.position = Vec2(-300,-300)
+            self.win_collection.floor.position = Vec2(-1000,-1000)
             self.win_collection.arm_brenda.position = Vec2(-300,-300)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 2:
             self.win_collection.white.position = Vec2(1920,1080)
             self.win_collection.black.position = Vec2(0,0)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
         elif self.d < 1620+self.death_fall_offset * 3:
             self.win_collection.white.position = Vec2(0,0)
             self.win_collection.black.position = Vec2(1920,1080)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 4:
             self.win_collection.white.position = Vec2(1920,1080)
             self.win_collection.black.position = Vec2(0,0)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 5:
             self.win_collection.white.position = Vec2(0,0)
             self.win_collection.black.position = Vec2(1920,1080)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1090),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 6:
             self.win_collection.white.position = Vec2(1920,1080)
             self.win_collection.black.position = Vec2(0,0)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
         elif self.d < 1620+self.death_fall_offset * 7:
             self.win_collection.white.position = Vec2(0,0)
             self.win_collection.black.position = Vec2(1920,1080)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 8:
             self.win_collection.white.position = Vec2(1920,1080)
             self.win_collection.black.position = Vec2(0,0)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 9:
             self.win_collection.white.position = Vec2(0,0)
             self.win_collection.black.position = Vec2(1920,1080)
-            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/(self.death_fall_duration*2))
             self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1090),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
 
         elif self.d < 1620+self.death_fall_offset * 10:
             self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position =Vec2(-1000,1000)
+            self.win_collection.prune.rotation = 0
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+
+        elif self.d < 1620+self.death_fall_offset * 12:
+            self.win_collection.white.position = Vec2(1920,1080)
             self.win_collection.black.position = Vec2(0,0)
             self.win_collection.black.color = Color(255,0,0)
+
+        else:
+            self.win_collection.quit()
+            GameOverGlitched(self._core, 1)
 
     def update(self,_):
         if self.in_transition:
@@ -426,8 +439,10 @@ class Tree():
         else:
             
             if (self._core.tick_count - self.start_player_count) <= 30:
-                self.player_position = ease_in_out_quadratic_bezier(self.player_transition_start,Vec2(self.player_transition_start.x,self.player_transition_end.y),self.player_transition_end,(self._core.tick_count - self.start_player_count)/30) 
+                self.player.texture = self.jump_texture
+                self.player_position = ease_in_out_quadratic_bezier(self.player_transition_start,Vec2(self.player_transition_start.x,self.player_transition_end.y-150),self.player_transition_end,(self._core.tick_count - self.start_player_count)/30) 
             else:
+                self.player.texture = self.normal_texture
                 self.player_position = self.player_transition_end
                 self.player_in_transition = False
                 if not self.won:
@@ -435,6 +450,7 @@ class Tree():
                         self.player_dead = True
                         self.player_kill_tick = self._core.tick_count
                         self.offset_y = self.target_offset_y-1
+                        self.player.texture = self.jump_texture
                         self._update_branch_positions()
                 else:
                     self.freeze = True
