@@ -25,6 +25,7 @@ class Tree():
         self.won = False
         self.intro_locations = {}
         self.start_win = 0
+        self.setup_won = False 
 
     def setup(self):
         self.setup_transition()
@@ -183,12 +184,24 @@ class Tree():
     def _update_win_tansition(self):
         self.d = self._core.tick_count - self.start_win
         
-        self.text_collection = Collection(self._core)
-        self.text_collection.Entity(layer=layers.background,name="text_bg",size=Vec2(1260,252),position = Vec2(330,-250),texture ="Assets/Textures/Fonts/Background/back_1.raw")
+        if self.setup_won == False:
+            self.win_collection = Collection(self._core)
+            self.win_collection.Entity(layer=layers.background,name="white",size=Vec2(1920,1080),position = Vec2(0,1080),color=Color(255,255,255))
+            self.win_collection.Entity(layer=layers.background,name="black",size=Vec2(1920,1080),position = Vec2(0,1080),color=Color(0,0,0))
+            self.win_collection.Entity(layer=layers.background,name="text_bg",size=Vec2(1260,252),position = Vec2(330,-250),texture ="Assets/Textures/Fonts/Background/back_1.raw")
+            self.win_collection.Text(layer=layers.background,name="textline",font=self._core.monogram_big,position = Vec2(360,295),size = Vec2(50,500),text="")
 
-        self.text_collection.Text(layer=layers.background,name="textline",font=self._core.monogram_big,position = Vec2(360,295),size = Vec2(50,500),text="")
+            self.win_collection.Entity(name="prune",size=Vec2(150,300),position=Vec2(-486,240),color = Color(255,255,255), layer=layers.background)
+            self.win_collection.Entity(name="brenda",size=Vec2(150,300),position=Vec2(-266,240),color = Color(255,255,255), layer=layers.background)
+            self.win_collection.Entity(name="arm_brenda",size=Vec2(150,28),position=Vec2(-266,350),color = Color(255,255,255), layer=layers.background)
+            self.win_collection.Entity(name="floor",size=Vec2(636,32),position=Vec2(0,-540),color = Color(255,255,255), layer=layers.background)
 
-        self.cut_text = lambda s, x: s[:int(len(s) * x)]
+            self.cut_text = lambda s, x: s[:int(len(s) * x)]
+            self.setup_won = True
+            self.cleaned = False
+
+        self.death_fall_duration = 200
+        self.death_fall_offset = 20
     
         if self.d < 50:
             pass
@@ -196,9 +209,98 @@ class Tree():
             self.player_position = ease_in_out(Vec2(935,827 + (-3351)),Vec2(1293,827 + (-3351)),(self._core.tick_count - self.start_win-50)/300)
         elif self.d < 400:
             self.player_position = Vec2(1293,827 + (-3351))
-        elif self.d < 501:
-            self.text_collection.text_bg.position = Vec2(330,250)
-            self.text_collection.textline.text = self.cut_text("Pourquoi fais-tu tout cela ?",(self._core.tick_count - self.start_win-400)/100)
+        elif self.d < 600:
+            self.win_collection.text_bg.position = Vec2(330,250)
+            self.win_collection.textline.text = self.cut_text("Pourquoi fais-tu tout cela ?",(self._core.tick_count - self.start_win-400)/100)
+        elif self.d < 620:
+            if not self.cleaned:
+                self.cleaned = True
+                self.map.quit()
+            self.win_collection.text_bg.position = Vec2(1920,1080)
+            self.win_collection.textline.text = ""
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.floor.position = Vec2(0,540)
+            self.win_collection.prune.position = Vec2(486,240)
+
+        elif self.d < 640:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+
+        elif self.d < 660:
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.black.position = Vec2(1920,1080)
+        elif self.d < 680:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+            self.win_collection.arm_brenda.position = Vec2(266,350)
+            self.win_collection.brenda.position = Vec2(266,240)
+        elif self.d < 1080:
+            self.win_collection.textline.position = Vec2(265,765)
+            self.win_collection.textline.text = self.cut_text("Tu sais que tu t'infliges tout toute seule...",(self._core.tick_count - self.start_win-680)/100)
+        elif self.d < 1580:
+            self.win_collection.textline.text = self.cut_text("Prune.",(self._core.tick_count - self.start_win-1080)/300)
+        elif self.d < 1620:
+            self.win_collection.textline.text = ""
+            self.win_collection.arm_brenda.position =ease_in_out(Vec2(266,350),Vec2(416,350),(self._core.tick_count - self.start_win-1580)/30)
+            self.win_collection.prune.position = ease_in_out(Vec2(486,240),Vec2(636,240),(self._core.tick_count - self.start_win-1590)/30)
+        elif self.d < 1620+self.death_fall_offset * 1:
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.black.position = Vec2(1920,1080)
+            self.win_collection.brenda.position = Vec2(-300,-300)
+            self.win_collection.arm_brenda.position = Vec2(-300,-300)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 2:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+        elif self.d < 1620+self.death_fall_offset * 3:
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.black.position = Vec2(1920,1080)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 4:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 5:
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.black.position = Vec2(1920,1080)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1090),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 6:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+        elif self.d < 1620+self.death_fall_offset * 7:
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.black.position = Vec2(1920,1080)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 8:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1080),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 9:
+            self.win_collection.white.position = Vec2(0,0)
+            self.win_collection.black.position = Vec2(1920,1080)
+            self.win_collection.prune.rotation = ease_in_out(0,180,(self._core.tick_count - self.start_win-1620)/self.death_fall_duration*2)
+            self.win_collection.prune.position = ease_in_out(Vec2(636,240),Vec2(800,1090),(self._core.tick_count - self.start_win-1620)/self.death_fall_duration)
+
+        elif self.d < 1620+self.death_fall_offset * 10:
+            self.win_collection.white.position = Vec2(1920,1080)
+            self.win_collection.black.position = Vec2(0,0)
+            self.win_collection.black.color = Color(255,0,0)
 
     def update(self,_):
         if self.in_transition:
