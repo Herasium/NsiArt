@@ -149,7 +149,7 @@ class Tree():
                 texture=f"Assets/Textures/Minigames/Tree/rotten_left.raw")
 
     def _setup_player(self):
-        self.player = Entity(layer=layers.background,size=Vec2(50,100),position=self.player_position,color=Color(255,0,0))
+        self.player = Entity(layer=layers.background,size=Vec2(50,100),position=self.player_position,color=Color(255,0,0),texture="Assets/Textures/Minigames/Tree/prune.png")
         self._core.add_entity(self.player)
 
     def setup_map(self):
