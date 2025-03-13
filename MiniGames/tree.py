@@ -55,7 +55,7 @@ class Tree():
             Vec2(1152, 43 + (-2180)),
             Vec2(1224, 52 + (-2540)),
         ]]
-        self._player_offset = [Vec2(250,140),Vec2(192,140),Vec2(304,140),Vec2(144,140)] #rotten left, rotten right, good left, good right
+        self._player_offset = [Vec2(250,140-100),Vec2(192-50,140-100),Vec2(304,140-100),Vec2(144-50,140-100)] #rotten left, rotten right, good left, good right
     def _setup_clouds(self):
         textures = [
             ("background", "1.raw"),("behind_clouds_copy", "2.raw"), ("behind_clouds", "2.raw"),
@@ -152,7 +152,7 @@ class Tree():
                 texture=f"Assets/Textures/Minigames/Tree/rotten_left.raw")
 
     def _setup_player(self):
-        self.player = Entity(layer=layers.background,size=Vec2(50,100),position=self.player_position,color=Color(255,0,0),texture=self.normal_texture)
+        self.player = Entity(layer=layers.background,size=Vec2(100,200),position=self.player_position,color=Color(255,0,0),texture=self.normal_texture)
         self._core.add_entity(self.player)
 
     def setup_map(self):
