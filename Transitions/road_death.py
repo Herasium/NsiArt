@@ -8,7 +8,7 @@ class RoadDeathTransition:
         self._core.update = self.update
         self._core.log.INFO("Launched ROAD Death transition. Took over the update event.")
         self.tick = 0
-        self.speed = 10
+        self.speed = 17
 
 
     def update(self,_):
@@ -16,4 +16,4 @@ class RoadDeathTransition:
         if self.speed > 0:
             self._map.player.position -= Vec2(0,self.speed)
             self._map.player.rotation += self.speed
-            self.speed -= 0.2
+            self.speed -= 0.3

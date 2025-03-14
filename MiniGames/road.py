@@ -18,7 +18,7 @@ class Road():
 
     def _setup_player(self):
         self.player_position = Vec2(885,780)
-        self.map.Entity(name="player",size = Vec2(150,300),position=Vec2(885,780),color = Color(255,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Tree/prune.raw")
+        self.map.Entity(name="player",size = Vec2(150,300),position=Vec2(885,780),color = Color(255,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Road/car.raw")
 
     def _setup_obstacles(self):
         self.obstacles = Collection(self._core)
