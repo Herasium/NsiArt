@@ -26,5 +26,5 @@ def process_images_in_folder(folder):
             
             print(f"Converted: {filename} -> {os.path.basename(file_out)}")
 
-folder_path = "Assets/Textures/Fonts/Background/"
+folder_path = "Assets/Textures/Minigames/Road"
 process_images_in_folder(folder_path)
