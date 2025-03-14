@@ -82,6 +82,7 @@ class Road():
                 self.player_position = Vec2(160*self.player_row + 720,780)
 
     def _update_player_position(self):
+        self.map.player.rotation = ((self.player_position - self.map.player.position)/self.player_delay).x
         self.map.player.position += (self.player_position - self.map.player.position)/self.player_delay
 
     def _check_collisions(self):

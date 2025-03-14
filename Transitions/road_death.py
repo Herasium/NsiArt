@@ -1,4 +1,5 @@
 from HeraEngine import *
+from Transitions.game_over import GameOver
 
 class RoadDeathTransition:
     
@@ -12,8 +13,12 @@ class RoadDeathTransition:
 
 
     def update(self,_):
-        self.tick += 1
         if self.speed > 0:
             self._map.player.position -= Vec2(0,self.speed)
             self._map.player.rotation += self.speed
             self.speed -= 0.3
+        else:
+            self.tick += 1
+            if self.tick >= 150:
+                self._map.quit()
+                GameOver(self._core)

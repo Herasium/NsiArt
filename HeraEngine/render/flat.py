@@ -8,6 +8,8 @@ from line_profiler import profile
 class FlatRenderer():
     def __init__(self,core):
         self.core = core
+
+    
     @profile
     def render(self, size: Vec2,target:Vec2, buffer, entityList: list[Entity], z: int):
         buffer_np = np.frombuffer(buffer, dtype=np.uint32).reshape(size.y, size.x)
@@ -29,7 +31,7 @@ class FlatRenderer():
                 continue
                 
             self.render_square(buffer_np, z, size, pos, ent_size, entity.color.value)
-    
+
         return buffer
 
     def render_text(self, entity, buffer_np, z, size, pos):
