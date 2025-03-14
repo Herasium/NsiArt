@@ -1,0 +1,123 @@
+import random
+from HeraEngine import *
+from Transitions.road_death import RoadDeathTransition
+class Road():
+
+    def __init__(self,core: Core):
+        self._core = core
+        self._core.log.INFO("Created ROAD.")
+
+    def _setup_map(self):
+        self.move_tick = 0
+        self.map = Collection(self._core)
+        self.map.Entity(name="bg_1",size=Vec2(1920,1080),position=Vec2(0,0),color=Color(0,255,0),layer=layers.background)
+        self.map.Entity(name="bg_2",size=Vec2(1920,1080),position=Vec2(0,-1080),color=Color(0,255,255),layer=layers.background)
+
+        self.map.Entity(name="road_1",size=Vec2(480,1080),position = Vec2(720,0),color=Color(255,0,0),layer=layers.background)
+        self.map.Entity(name="road_2",size=Vec2(480,1080),position = Vec2(720,-1080),color=Color(255,0,255),layer=layers.background)
+
+    def _setup_player(self):
+        self.player_position = Vec2(885,780)
+        self.map.Entity(name="player",size = Vec2(150,300),position=Vec2(885,780),color = Color(255,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Tree/prune.raw")
+
+    def _setup_obstacles(self):
+        self.obstacles = Collection(self._core)
+        self.spawn_delay = 900
+        self.obstacles_speed = 1
+        self.new_obstacle = random.randint(int(self.spawn_delay - self.spawn_delay/10),int(self.spawn_delay + self.spawn_delay/10))
+        self.obstacle_tick = 0
+
+    def _spawn_obstacle(self):
+        self.spawn_delay = int(max(self.spawn_delay-10,700)*10)/10
+        self.obstacles_speed = int(min(4,self.obstacles_speed+0.1)*10)/10
+        row = random.randint(0,2)
+        self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),color=Color(255,255,0),layer=layers.background)
+        getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
+
+    def _update_obstacles(self):
+
+        to_remove = []
+
+        for i in self.obstacles.entity_list:
+            entity = self.obstacles.entity_list[i]
+
+            if entity.position.y > 1200:
+                to_remove.append(i)
+
+            entity.position = entity.position + Vec2(0,int(self.obstacles_speed))
+
+        for i in to_remove:
+            self.obstacles.remove(i)
+
+        self.obstacle_tick += int(self.obstacles_speed)
+        if self.obstacle_tick >= self.new_obstacle:
+            self.obstacle_tick = 0
+            self.new_obstacle = int(random.randint(int(self.spawn_delay - self.spawn_delay/10),int(self.spawn_delay + self.spawn_delay/10)))
+            self._spawn_obstacle()
+
+
+    def _update_road(self):
+        self.move_tick += int(self.obstacles_speed)
+        d = (int(self.move_tick)) % 1080
+        t = (int(self.move_tick) % 2160) / 2
+
+        self.map.road_1.position = Vec2(720,d)
+        self.map.road_2.position = Vec2(720,-1080+d)
+
+        self.map.bg_1.position = Vec2(0,t)
+        self.map.bg_2.position = Vec2(0,-1080+t)
+
+    def _handle_player_inputs(self):
+        for key in self._core.keyboard.last_pressed:
+            if self._core.keyboard.get_key(key) == "right_arrow":
+                self.player_row += 1
+                if self.player_row > 2:
+                    self.player_row = 0
+                self.player_position = Vec2(160*self.player_row + 720,780)
+
+            if self._core.keyboard.get_key(key) == "left_arrow":
+                self.player_row -= 1
+                if self.player_row < 0:
+                    self.player_row = 2
+                self.player_position = Vec2(160*self.player_row + 720,780)
+
+    def _update_player_position(self):
+        self.map.player.position += (self.player_position - self.map.player.position)/self.player_delay
+
+    def _check_collisions(self):
+
+        self.colided =  False
+        for i in self.obstacles.entity_list:
+            entity = self.obstacles.entity_list[i]
+            if self.map.player.collide(entity):
+                self.colided = True
+
+
+    def setup(self):
+        self._core.update = self.update
+        self.player_position = Vec2(0,0)
+        self.player_row = 1
+        self.player_delay = 10
+        self.colided = False
+        self.alive = False
+        self.lost_transition = True
+
+        self._setup_map()
+        self._setup_player()
+        self._setup_obstacles()
+        self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram,text="Hello World",layer=layers.background)
+        self._core.log.INFO("Launched ROAD")  
+
+    def update(self,_):
+        self._update_road()
+        self._handle_player_inputs()
+        self._update_player_position()
+        self._update_obstacles()
+        self._check_collisions()
+
+        if self.colided:
+            self.obstacles.quit()
+            RoadDeathTransition(self.map,self._core)
+
+
+        self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} OBS_DELAY: {self.new_obstacle};{self.obstacle_tick} LEN_OBS: {len(self.obstacles.entity_list)} SPEED: {self.obstacles_speed} COLLISIONS: {self.colided} ECOUNT {self._core.entity_count}"

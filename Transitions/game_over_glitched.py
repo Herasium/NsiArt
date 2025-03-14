@@ -1,5 +1,6 @@
 
 from HeraEngine import *
+from MiniGames.road import Road
 
 class GameOverGlitched:
     def __init__(self,core: Core,cinematicId: int):
@@ -34,10 +35,16 @@ class GameOverGlitched:
         if self.in_transition == True:
             self.update_transition()
         else:
-            self._core.log.INFO("Re-Launching Menu.")
-            self._core.game.__init__(self._core)
-            self._core.update = self._core.game.update
-    
+            if self._id == 0:
+                self._core.log.INFO("Re-Launching Menu.")
+                self.transition_collection.quit()
+                self._core.game.__init__(self._core)
+                self._core.update = self._core.game.update
+            elif self._id == 1:
+                self._core.road = Road(self._core)
+                self._core.road.setup()
+
+        
     
     def update_transition(self):
         elapsed_ticks = self._core.tick_count - self.start_count
