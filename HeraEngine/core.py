@@ -12,6 +12,7 @@ from HeraEngine.cursor import Cursor
 from HeraEngine.keyboard import Keyboard
 from HeraEngine.benchmark import benchmark
 from HeraEngine.files.TextureLoader import TextureLoader
+from HeraEngine.popup import Popup
 
 from HeraEngine.types.Vec2 import Vec2
 
@@ -28,6 +29,7 @@ Powered by
         self.is_windows = self.os == "nt"
         self.running = False
         self.EntityList = {1:[],2:[],3:[],4:[]}
+        self.entity_count = 0
         self._fullscreen = False
         self._size = Vec2(1920,1080)
         self._asset_path = asset_path
@@ -121,6 +123,13 @@ Powered by
         else:
             raise TypeError("Target is not an Entity.")
         
+        self.update_entity_count()
+
+    def update_entity_count(self):
+        self.entity_count = 0
+        for i in self.EntityList:
+            self.entity_count += len(self.EntityList[i])
+
     def remove_entity(self,target):
         if target in self.EntityList[1]:
             self.EntityList[1].remove(target)
@@ -130,6 +139,8 @@ Powered by
             self.EntityList[3].remove(target)
         if target in self.EntityList[4]:
             self.EntityList[4].remove(target)
+
+        self.update_entity_count()
 
     def run(self):
         try:
@@ -146,8 +157,12 @@ Powered by
         except SystemExit:
                 raise
         except Exception as e:
+            tb = traceback.extract_tb(e.__traceback__)[-1]
+            message = f"{e} - L.{tb.lineno} - {tb.filename}"
             traceback.print_exc()
-            self.log.ERROR(f"Failed to start: {e}")
+            self.log.ERROR(f"Failed to start: {message}")
+            self.error(message,2)
+            raise BaseException(f"Failed to start: {message}")
 
     @profile
     def run_updates(self):
@@ -178,9 +193,17 @@ Powered by
             except SystemExit:
                 raise
             except Exception as e: 
+                tb = traceback.extract_tb(e.__traceback__)[-1]
+                message = f"{e} - L.{tb.lineno} - {tb.filename}"
                 traceback.print_exc()
-                self.log.ERROR(f"Failed to run update : {e}")
-            
+                self.log.ERROR(f"Failed to update: {message}")
+                self.error(message,1)
+                raise BaseException(f"Failed to update: {message}")
+
+    def error(self,error,code):
+        self.window.kill = True
+        Popup(f"Une erreur s'est produite : {error}\nNous sommes désolés de la gêne occasionnée.\nMerci de bien vouloir redémarrer le jeu.",f"HeraEngine Crash Code: {code}",1)
     def quit(self):
         self.window.kill = True
+        Popup("Merci d'avoir joué à notre jeu. Nous vous souhaitons une bonne journée/soirée.","HeraEngine Exit Code:0",4)
         quit(0)

@@ -3,8 +3,8 @@ import time
 import threading
 import random
 from HeraEngine import *
-from MiniGames.game_over import GameOver
-from MiniGames.game_over_glitched import GameOverGlitched
+from Transitions.game_over import GameOver
+from Transitions.game_over_glitched import GameOverGlitched
 
 
 class Tree():
@@ -29,6 +29,8 @@ class Tree():
         self.setup_won = False 
         self.normal_texture = Texture("Assets/Textures/Minigames/Tree/prune.raw",self._core)
         self.jump_texture = Texture("Assets/Textures/Minigames/Tree/prune_jump.raw",self._core)
+
+        self._core.log.INFO("Created TREE.")
 
     def setup(self):
         self.setup_transition()
@@ -56,6 +58,7 @@ class Tree():
             Vec2(1224, 52 + (-2540)),
         ]]
         self._player_offset = [Vec2(250-50,140-100),Vec2(192+50,140-100),Vec2(304-10,140-100),Vec2(144-20,140-100)] #rotten left, rotten right, good left, good right
+        self._core.log.INFO("Launched TREE.")
     def _setup_clouds(self):
         textures = [
             ("background", "1.raw"),("behind_clouds_copy", "2.raw"), ("behind_clouds", "2.raw"),

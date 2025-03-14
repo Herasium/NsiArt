@@ -4,10 +4,14 @@ import random
 import asyncio
 
 from MiniGames.tree import Tree
+from MiniGames.road import Road
 
 
 class Game:
     def __init__(self, app: Core):
+
+        self.current_next = 1
+
         self.app = app
         self._in_transition = False
         self._setup_app_properties()
@@ -122,8 +126,12 @@ class Game:
             else:
                 self.technical_collection.quit()
                 self.bg_collection.quit()
-                self.tree = Tree(self.app)
-                self.tree.setup()
+                if self.current_next == 0:
+                    self.tree = Tree(self.app)
+                    self.tree.setup()
+                elif self.current_next == 1:
+                    self.road = Road(self.app)
+                    self.road.setup()
 
     def _update_cloud_positions(self):
         count = self.app.tick_count % 1920
@@ -142,6 +150,7 @@ class Game:
             40 + math.sin(self.app.tick_count / 50) * 5,
             285 + math.sin(self.app.tick_count / 30) * 10
         )
+        self.bg_collection.main_menu_title.rotation = math.sin(self.app.tick_count/100)*5
 
     def _update_fps_counter(self):
         self.technical_collection.fps_counter.text = f"{int(self.app.fps)} FPS" + f" {int(self.app.average_fps)} Averages FPS"

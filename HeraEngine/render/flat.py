@@ -63,6 +63,7 @@ class FlatRenderer():
     def render_textured(self, entity, buffer_np, z, size, pos, ent_size):
         texture_data = entity.texture.data
         rotation = int(getattr(entity, 'rotation', 0)*10)/10
+        new_pos = Vec2(pos.x,pos.y)
         if rotation != 0:
             original_center_x = pos.x + ent_size.x / 2
             original_center_y = pos.y + ent_size.y / 2
@@ -74,19 +75,21 @@ class FlatRenderer():
                 texture_data, new_ent_size = self.rotate_image(texture_data, rotation)
                 entity.texture.store_rotation(rotation,(texture_data,new_ent_size))
 
+  
+
             new_pos_x = original_center_x - new_ent_size.x / 2
             new_pos_y = original_center_y - new_ent_size.y / 2
 
-            pos.x = int(new_pos_x)
-            pos.y = int(new_pos_y)
+            new_pos.x = int(new_pos_x) #No idea why but updating the position on moving entities created a bug and moves out the entities in a weird diagonal manner, gonna drop that for now
+            new_pos.y = int(new_pos_y) #Fixed the bug, changing the entity position with pos.x =... offseted the entity a bit and caused a chain reaction.
             ent_size = new_ent_size
 
-        buf_y_start, buf_y_end = np.clip([pos.y, pos.y + ent_size.y], 0, size.y)
-        buf_x_start, buf_x_end = np.clip([pos.x, pos.x + ent_size.x], 0, size.x)
+        buf_y_start, buf_y_end = np.clip([new_pos.y, new_pos.y + ent_size.y], 0, size.y)
+        buf_x_start, buf_x_end = np.clip([new_pos.x, new_pos.x + ent_size.x], 0, size.x)
 
-        small_y_start = max(0, -pos.y)
+        small_y_start = max(0, -new_pos.y)
         small_y_end = small_y_start + (buf_y_end - buf_y_start)
-        small_x_start = max(0, -pos.x)
+        small_x_start = max(0, -new_pos.x)
         small_x_end = small_x_start + (buf_x_end - buf_x_start)
 
         texture_patch = texture_data[small_y_start:small_y_end, small_x_start:small_x_end]
