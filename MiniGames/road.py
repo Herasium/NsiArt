@@ -6,6 +6,7 @@ class Road():
     def __init__(self,core: Core):
         self._core = core
         self._core.log.INFO("Created ROAD.")
+        self.invincible = True
 
     def _setup_map(self):
         self.move_tick = 0
@@ -18,7 +19,7 @@ class Road():
 
     def _setup_player(self):
         self.player_position = Vec2(885,780)
-        self.map.Entity(name="player",size = Vec2(150,300),position=Vec2(885,780),color = Color(255,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Road/car.raw")
+        self.map.Entity(name="player",size = Vec2(150,204),position=Vec2(885,780),color = Color(255,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Road/car.raw")
 
     def _setup_obstacles(self):
         self.obstacles = Collection(self._core)
@@ -31,8 +32,13 @@ class Road():
         self.spawn_delay = int(max(self.spawn_delay-10,700)*10)/10
         self.obstacles_speed = int(min(4,self.obstacles_speed+0.1)*10)/10
         row = random.randint(0,2)
-        self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),color=Color(255,255,0),layer=layers.background)
-        getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
+        type = random.randint(int(min(self.score/3,10)),10) == 10
+        if type:
+            self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),color=Color(255,255,255),layer=layers.background)
+            getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
+        else:
+            self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),color=Color(255,255,0),layer=layers.background)
+            getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
 
     def _update_obstacles(self):
 
@@ -47,6 +53,7 @@ class Road():
             entity.position = entity.position + Vec2(0,int(self.obstacles_speed))
 
         for i in to_remove:
+            self.score += 1
             self.obstacles.remove(i)
 
         self.obstacle_tick += int(self.obstacles_speed)
@@ -66,6 +73,14 @@ class Road():
 
         self.map.bg_1.position = Vec2(0,t)
         self.map.bg_2.position = Vec2(0,-1080+t)
+        
+        if d < 5 and t < 5 and self.score > 40:
+            self.map.road_2.color = Color(0,0,0)
+            self.map.bg_2.color = Color(125,125,125)
+
+        if d > 1075 and t > 1075 and self.score > 40:
+            self.map.road_1.color = Color(0,0,125)
+            self.map.bg_1.color = Color(125,0,0)
 
     def _handle_player_inputs(self):
         for key in self._core.keyboard.last_pressed:
@@ -100,8 +115,7 @@ class Road():
         self.player_row = 1
         self.player_delay = 10
         self.colided = False
-        self.alive = False
-        self.lost_transition = True
+        self.score = 0
 
         self._setup_map()
         self._setup_player()
@@ -116,9 +130,9 @@ class Road():
         self._update_obstacles()
         self._check_collisions()
 
-        if self.colided:
+        if self.colided and not self.invincible:
             self.obstacles.quit()
             RoadDeathTransition(self.map,self._core)
 
 
-        self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} OBS_DELAY: {self.new_obstacle};{self.obstacle_tick} LEN_OBS: {len(self.obstacles.entity_list)} SPEED: {self.obstacles_speed} COLLISIONS: {self.colided} ECOUNT {self._core.entity_count}"
+        self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} OBS_DELAY: {self.new_obstacle};{self.obstacle_tick} LEN_OBS: {len(self.obstacles.entity_list)} SPEED: {self.obstacles_speed} COLLISIONS: {self.colided} ECOUNT {self._core.entity_count} SCORE {self.score}"
