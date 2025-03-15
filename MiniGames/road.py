@@ -11,11 +11,11 @@ class Road():
     def _setup_map(self):
         self.move_tick = 0
         self.map = Collection(self._core)
-        self.map.Entity(name="bg_1",size=Vec2(1920,1080),position=Vec2(0,0),color=Color(0,255,0),layer=layers.background)
-        self.map.Entity(name="bg_2",size=Vec2(1920,1080),position=Vec2(0,-1080),color=Color(0,255,255),layer=layers.background)
+        self.map.Entity(name="bg_1",size=Vec2(1920,1080),position=Vec2(0,0),color=Color(0,255,0),layer=layers.background,texture="Assets/Textures/Minigames/Road/grass.raw")
+        self.map.Entity(name="bg_2",size=Vec2(1920,1080),position=Vec2(0,-1080),color=Color(0,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Road/grass.raw")
 
-        self.map.Entity(name="road_1",size=Vec2(480,1080),position = Vec2(720,0),color=Color(255,0,0),layer=layers.background)
-        self.map.Entity(name="road_2",size=Vec2(480,1080),position = Vec2(720,-1080),color=Color(255,0,255),layer=layers.background)
+        self.map.Entity(name="road_1",size=Vec2(480,1080),position = Vec2(720,0),color=Color(255,0,0),layer=layers.background, texture="Assets/Textures/Minigames/Road/road_1.raw")
+        self.map.Entity(name="road_2",size=Vec2(480,1080),position = Vec2(720,-1080),color=Color(255,0,255),layer=layers.background, texture="Assets/Textures/Minigames/Road/road_1.raw")
 
     def _setup_player(self):
         self.player_position = Vec2(885,780)
@@ -66,7 +66,7 @@ class Road():
     def _update_road(self):
         self.move_tick += int(self.obstacles_speed)
         d = (int(self.move_tick)) % 1080
-        t = (int(self.move_tick) % 2160) / 2
+        t = (int(self.move_tick) % 1080)
 
         self.map.road_1.position = Vec2(720,d)
         self.map.road_2.position = Vec2(720,-1080+d)
