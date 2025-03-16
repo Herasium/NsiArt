@@ -5,11 +5,12 @@ import asyncio
 
 from MiniGames.tree import Tree
 from MiniGames.road import Road
+from MiniGames.maze import Maze
 
 
 class Game:
     def __init__(self, app: Core):
-        self.current_next = 0
+        self.current_next = 2
 
         self.app = app
         self._in_transition = False
@@ -131,6 +132,9 @@ class Game:
                 elif self.current_next == 1:
                     self.road = Road(self.app)
                     self.road.setup()
+                elif self.current_next == 2:
+                    self.maze = Maze(self.app)
+                    self.maze.setup()
 
     def _update_cloud_positions(self):
         count = self.app.tick_count % 1920
