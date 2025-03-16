@@ -9,8 +9,7 @@ from MiniGames.road import Road
 
 class Game:
     def __init__(self, app: Core):
-
-        self.current_next = 1
+        self.current_next = 0
 
         self.app = app
         self._in_transition = False

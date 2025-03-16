@@ -1,21 +1,25 @@
 import random
 from HeraEngine import *
+
 from Transitions.road_death import RoadDeathTransition
+from Transitions.road_win import RoadWin
+
 class Road():
 
     def __init__(self,core: Core):
         self._core = core
         self._core.log.INFO("Created ROAD.")
-        self.invincible = True
+        self.invincible = False
 
     def _setup_map(self):
         self.move_tick = 0
         self.map = Collection(self._core)
+        self.map.Entity(name="bg_0",size = Vec2(1920,1080),position=Vec2(0,0),color=Color(0,0,0),layer=layers.background)
         self.map.Entity(name="bg_1",size=Vec2(1920,1080),position=Vec2(0,0),color=Color(0,255,0),layer=layers.background,texture="Assets/Textures/Minigames/Road/grass.raw")
         self.map.Entity(name="bg_2",size=Vec2(1920,1080),position=Vec2(0,-1080),color=Color(0,255,255),layer=layers.background,texture="Assets/Textures/Minigames/Road/grass.raw")
 
-        self.map.Entity(name="road_1",size=Vec2(480,1080),position = Vec2(720,0),color=Color(255,0,0),layer=layers.background, texture="Assets/Textures/Minigames/Road/road_1.raw")
-        self.map.Entity(name="road_2",size=Vec2(480,1080),position = Vec2(720,-1080),color=Color(255,0,255),layer=layers.background, texture="Assets/Textures/Minigames/Road/road_1.raw")
+        self.map.Entity(name="road_1",size=Vec2(480,1080),position = Vec2(720,0),color=Color(255,0,0),layer=layers.background, texture="Assets/Textures/Minigames/Road/road.raw")
+        self.map.Entity(name="road_2",size=Vec2(480,1080),position = Vec2(720,-1080),color=Color(255,0,255),layer=layers.background, texture="Assets/Textures/Minigames/Road/road.raw")
 
     def _setup_player(self):
         self.player_position = Vec2(885,780)
@@ -24,20 +28,20 @@ class Road():
     def _setup_obstacles(self):
         self.obstacles = Collection(self._core)
         self.spawn_delay = 900
-        self.obstacles_speed = 1
+        self.obstacles_speed = 4
         self.new_obstacle = random.randint(int(self.spawn_delay - self.spawn_delay/10),int(self.spawn_delay + self.spawn_delay/10))
         self.obstacle_tick = 0
 
     def _spawn_obstacle(self):
         self.spawn_delay = int(max(self.spawn_delay-10,700)*10)/10
-        self.obstacles_speed = int(min(4,self.obstacles_speed+0.1)*10)/10
+        self.obstacles_speed = int(min(6,self.obstacles_speed+0.1)*10)/10
         row = random.randint(0,2)
         type = random.randint(int(min(self.score/3,10)),10) == 10
-        if type:
-            self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),color=Color(255,255,255),layer=layers.background)
+        if type and self.obstacles_speed > 3.5:
+            self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),texture=f"Assets/Textures/Minigames/Road/obstacles/hospital/sprite_{random.randint(0,7)}.raw",layer=layers.background)
             getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
         else:
-            self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),color=Color(255,255,0),layer=layers.background)
+            self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),texture=f"Assets/Textures/Minigames/Road/obstacles/normal/sprite_{random.randint(0,10)}.raw",layer=layers.background)
             getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
 
     def _update_obstacles(self):
@@ -66,7 +70,7 @@ class Road():
     def _update_road(self):
         self.move_tick += int(self.obstacles_speed)
         d = (int(self.move_tick)) % 1080
-        t = (int(self.move_tick) % 1080)
+        t = (int(self.move_tick) % 1620)/1.5
 
         self.map.road_1.position = Vec2(720,d)
         self.map.road_2.position = Vec2(720,-1080+d)
@@ -133,6 +137,11 @@ class Road():
         if self.colided and not self.invincible:
             self.obstacles.quit()
             RoadDeathTransition(self.map,self._core)
+
+        if self.score > 50 and (int(self.move_tick)) % 1080 < 5:
+            self.obstacles.quit()
+            RoadWin(self.map,self._core)
+
 
 
         self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} OBS_DELAY: {self.new_obstacle};{self.obstacle_tick} LEN_OBS: {len(self.obstacles.entity_list)} SPEED: {self.obstacles_speed} COLLISIONS: {self.colided} ECOUNT {self._core.entity_count} SCORE {self.score}"

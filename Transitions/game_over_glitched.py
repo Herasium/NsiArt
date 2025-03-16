@@ -1,7 +1,7 @@
 
 from HeraEngine import *
 from MiniGames.road import Road
-
+from Transitions.dream_2 import Dream2
 class GameOverGlitched:
     def __init__(self,core: Core,cinematicId: int):
         self._core = core
@@ -41,8 +41,8 @@ class GameOverGlitched:
                 self._core.game.__init__(self._core)
                 self._core.update = self._core.game.update
             elif self._id == 1:
-                self._core.road = Road(self._core)
-                self._core.road.setup()
+                self._core.dream2 = Dream2(self._core)
+
 
         
     
