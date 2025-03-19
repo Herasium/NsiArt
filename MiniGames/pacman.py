@@ -1,4 +1,5 @@
 from HeraEngine import *
+import numpy as np
 
 class PacMan():
 
@@ -76,11 +77,16 @@ class PacMan():
             if self._core.keyboard.get_key(key) == "down_arrow":
                 self.player_rotation = 2
 
+    def _setup_path_grid(self):
+        self._path_grid = np.array(CSV().read("Assets/Textures/Minigames/Pacman/collisions.txt")).reshape(72,108)
+        print(self._path_grid)
+
     def setup(self):
-        self._debug_collisions()
         self._setup_map()
         self._setup_player()
+        self._setup_path_grid()
         self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram,text="Hello World",layer=layers.background)
+        self.map.Entity("debug_cursor",position = Vec2(0,0),size=Vec2(10,10),layer=layers.background,color=Color(255,0,255))
         self._core.update = self.update
         self._core.Pipeline.clear_buffer()
 
@@ -89,4 +95,5 @@ class PacMan():
         if self._core.tick_count % 7 == 0:
             self._move_player()
         self._handle_player_inputs()
-        self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} ECOUNT {self._core.entity_count} POSITION {self.player_position}"
+        self.map.debug_cursor.position = Vec2(round(self._core.cursor.x/10)*10,round(self._core.cursor.y/10)*10)
+        self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} ECOUNT {self._core.entity_count} POSITION {self.player_position} CURSOR {self.map.debug_cursor.position}"
