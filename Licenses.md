@@ -6,3 +6,5 @@ List of licenses used for third-party ressources in this project:
 - m6x11plus font by [Daniel Linssen](https://managore.itch.io/) : [Itch.io Page](https://managore.itch.io/m6x11)
 - Monogram font : [Itch.io Page](https://datagoblin.itch.io/monogram) ; [License](https://creativecommons.org/publicdomain/zero/1.0/)
 - Dialogue Box Background: [Itch.io Page](https://2bitcrook.itch.io/gameboy-dialogue-frames)
+- Heart Image: [Rawpixel Page](https://www.rawpixel.com/image/6285666/png-sticker-heart)
+- Glitch Animation: [Pinterest](https://fr.pinterest.com/pin/627548529358587736/)
