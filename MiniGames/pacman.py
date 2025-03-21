@@ -3,6 +3,8 @@ import numpy as np
 import random
 
 from Transitions.pacman_death import PacManDeathTransition
+from Transitions.pacman_win import PacManWin
+
 
 class PacMan():
 
@@ -309,7 +311,10 @@ class PacMan():
         if self._core.tick_count % int(self._core.average_fps / 10) == 0:
             self._moves_ghosts()
 
- 
         self._handle_player_inputs()
         self._handle_coins()
+        if self.countdown <= 0:
+            self.ghosts.quit()
+            self.coin.quit()
+            PacManWin(self.map,self._core)
         self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} ECOUNT {self._core.entity_count} POSITION {self.player_position} COUNTDOWN {self.countdown}"

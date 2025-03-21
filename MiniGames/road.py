@@ -54,7 +54,7 @@ class Road():
             if entity.position.y > 1200:
                 to_remove.append(i)
 
-            entity.position = entity.position + Vec2(0,int(self.obstacles_speed))
+            entity.position = entity.position + Vec2(0,int(self.obstacles_speed)*(self._core.average_fps/140))
 
         for i in to_remove:
             self.score += 1
@@ -68,7 +68,7 @@ class Road():
 
 
     def _update_road(self):
-        self.move_tick += int(self.obstacles_speed)
+        self.move_tick += (int(self.obstacles_speed)*(self._core.average_fps/140))
         d = (int(self.move_tick)) % 1080
         t = (int(self.move_tick) % 1620)/1.5
 

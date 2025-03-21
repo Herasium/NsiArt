@@ -3,8 +3,10 @@ from HeraEngine.logger import Logger
 from HeraEngine.types.Vec2 import Vec2
 
 class Font():
-    def __init__(self,name):
+    def __init__(self,name,corrupted = False):
         self._name = name
+        self._corrupted = corrupted
+        
         self._path = "Assets/Textures/Fonts/" + self._name
 
         self._charset = " !"+'"'+"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ["+"\\"+"]^_`abcdefghijklmnopqrstuvwxyz"
@@ -16,12 +18,19 @@ class Font():
 
         self._char_size = self._charset_data["o"].size
         self._char_offset = Vec2(0,0)
+        
+        if self._corrupted:
+            self._name += "_corrupted"
 
         Logger().INFO(f"Loaded font {self._name} with {len(self._charset)} chars and a size of {self._char_size}")
 
     def load_charset(self):
-        for i in self._charset:
-            self._charset_data[i] = Texture(self._path + f"/{self._charset_sanitized[i]}.raw")
+        if self._corrupted:
+            for i in self._charset:
+                self._charset_data[i] = Texture(self._path + f"/{self._charset_sanitized[i]}.raw.corrupted")
+        else:
+            for i in self._charset:
+                self._charset_data[i] = Texture(self._path + f"/{self._charset_sanitized[i]}.raw")
 
     @property
     def offset(self):

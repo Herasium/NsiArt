@@ -3,6 +3,7 @@ import numpy as np
 import random
 
 from Transitions.pacman_death import PacManDeathTransition
+from Transitions.heart_stop import HeartStop
 
 class PacManCorrupted():
 
@@ -31,9 +32,10 @@ class PacManCorrupted():
         self.map = Collection(self._core)
         self.map.Entity(name="bg_0",size = Vec2(1920,1080),position=Vec2(0,0),color=Color(0,0,0),layer=layers.background)
         self.map.Entity("map_bg",size=Vec2(720,1080),position = Vec2(600,0),texture="Assets/Textures/Minigames/PacMan/map_big.raw.corrupted", layer=layers.background)
+        self.map.Entity(name="counter",size=Vec2(10,0),position =Vec2(0,0),color=Color(255,0,0),layer=layers.background)
 
     def _setup_player(self):
-        self.map.Entity("player",size=Vec2(100,100),position =Vec2(610,10),color=Color(255,0,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/heart.raw")
+        self.map.Entity("player",size=Vec2(50,50),position =Vec2(610,10),color=Color(255,0,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/heart.raw")
         self.player_position = Vec2(1,1)
         self.player_screen_position = Vec2(610,10)
         self.player_target = Vec2(610,10)
@@ -136,7 +138,8 @@ class PacManCorrupted():
             if self.map.player.collide(entity):
                 self.coin.quit()
                 self.ghosts.quit()
-                PacManDeathTransition(self.map,self._core)
+                PacManDeathTransition(self.map,self._core,True)
+                
                 break
 
     def _setup_coins(self):
@@ -146,7 +149,7 @@ class PacManCorrupted():
                 value = self._get_path_tile(Vec2(x,y))
                 if value.x != -1 and value.y != -1 and value.x * value.y % 8== 0:
                     self.countdown += 1
-                    self.coin.Entity(f"coin-{y}-{x}",size=Vec2(10,10),position =value * 10 + Vec2(605,5),color = Color(255,87,51),layer=layers.background)
+                    self.coin.Entity(f"coin-{y}-{x}",size=Vec2(10,10),position =value * 10 + Vec2(605,5),color = Color(255,0,0),layer=layers.background)
     
 
     def _handle_coins(self):
@@ -160,11 +163,12 @@ class PacManCorrupted():
                 to_remove.append(i)
 
         for i in to_remove:
+            self.life += 10
             self.coin.remove(i)
             self.countdown -= 1
 
     def _position_player(self):
-        self.map.player.position = self.player_screen_position - Vec2(40,40)
+        self.map.player.position = self.player_screen_position - Vec2(15,15)
         self.player_screen_position = self.player_target 
 
     def _can_go(self):
@@ -286,19 +290,27 @@ class PacManCorrupted():
         self._setup_path_grid()
         self._setup_coins()
         self._setup_ghosts()
-        self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram,text="Hello World",layer=layers.background)
+        self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram_corrupted,text="Hello World",layer=layers.background)
         self._core.update = self.update
         self._core.Pipeline.clear_buffer()
+        self.life = 100
 
     def update(self,_):
         self._position_player()
         if self._core.tick_count % int(self._core.average_fps / 20) == 0:
+            self.life -= 0.5
             self._move_player()
 
         if self._core.tick_count % int(self._core.average_fps / 10) == 0:
             self._moves_ghosts()
 
- 
+        self.map.counter.size =Vec2(self.life,10)
         self._handle_player_inputs()
         self._handle_coins()
         self.map.debug_text.text = f"FPS: {int(self._core.fps)};{int(self._core.average_fps)} ECOUNT {self._core.entity_count} POSITION {self.player_position} COUNTDOWN {self.countdown}"
+        
+        if self.life < 0:
+            self.map.quit()
+            self.ghosts.quit()
+            self.coin.quit()
+            HeartStop(self._core)

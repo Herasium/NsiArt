@@ -36,6 +36,14 @@ class Game:
         self.app.monogram_big = Font("MonogramBig")
         self.app.monogram_big.size = Vec2(x=48, y=48)
         self.app.monogram_big.offset = Vec2(-28, 0)
+        
+        self.app.monogram_corrupted = Font("Monogram",corrupted=True)
+        self.app.monogram_corrupted.size = Vec2(x=13, y=28)
+        self.app.monogram_corrupted.offset = Vec2(-2, 0)
+        
+        self.app.monogram_big_corrupted = Font("MonogramBig",corrupted=True)
+        self.app.monogram_big_corrupted.size = Vec2(x=48, y=48)
+        self.app.monogram_big_corrupted.offset = Vec2(-28, 0)
 
     def _create_collections(self):
         self.bg_collection = Collection(self.app)

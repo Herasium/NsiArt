@@ -62,6 +62,7 @@ Powered by
         self.fps = 60
         self.fps_total = 0
         self.average_fps = 0
+        self.fps_tick = 0
         
 
         if self.is_windows:
@@ -189,7 +190,12 @@ Powered by
                 self.fps = 1/execution_time
                 self.tick_count += self.tick_update
                 self.fps_total += self.fps
-                self.average_fps = self.fps_total / self.tick_count
+                self.fps_tick += 1
+                
+                if self.fps_tick > 20:
+                    self.average_fps = self.fps_total / self.fps_tick
+                    self.fps_total = 0
+                    self.fps_tick = 0
             except SystemExit:
                 raise
             except Exception as e: 
@@ -207,3 +213,7 @@ Powered by
         self.window.kill = True
         Popup("Merci d'avoir joué à notre jeu. Nous vous souhaitons une bonne journée/soirée.","HeraEngine Exit Code:0",4)
         quit(0)
+        
+    def reset_fps_average(self):
+        self.tick_count = 0
+        self.fps_total = 0

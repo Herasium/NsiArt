@@ -21,14 +21,14 @@ class GameOverGlitched:
             color=Color(0, 0, 0)
         )
         self.transition_collection.Entity("g",layer=layers.background,position = Vec2(806,-490),size=Vec2(30,52),texture="Assets/Textures/Transition/GameOver")
-        self.transition_collection.Entity("a",layer=layers.background,position = Vec2(840,-505),size=Vec2(30,52),texture="Assets/Textures/Transition/GameOver/a.raw")
-        self.transition_collection.Entity("m",layer=layers.background,position = Vec2(874,-505),size=Vec2(45,12),texture="Assets/Textures/Transition/GameOver/m.raw")
+        self.transition_collection.Entity("a",layer=layers.background,position = Vec2(840,-505),size=Vec2(30,52),texture="Assets/Textures/Transition/GameOver/a.raw.corrupted")
+        self.transition_collection.Entity("m",layer=layers.background,position = Vec2(874,-505),size=Vec2(45,12),texture="Assets/Textures/Transition/GameOver/m.raw.corrupted")
         self.transition_collection.Entity("e",layer=layers.background,position = Vec2(918,-505),size=Vec2(30,15),texture="Assets/Textures/Transition/GameOver/e.raw")
         self.transition_collection.Entity("o",layer=layers.background,position = Vec2(964,-490),size=Vec2(30,68),texture="Assets/Textures/Transition/GameOver")
-        self.transition_collection.Entity("v",layer=layers.background,position = Vec2(998,-505),size=Vec2(30,75),texture="Assets/Textures/Transition/GameOver/v.raw")
+        self.transition_collection.Entity("v",layer=layers.background,position = Vec2(998,-505),size=Vec2(30,75),texture="Assets/Textures/Transition/GameOver/v.raw.corrupted")
         self.transition_collection.Entity("second_e",layer=layers.background,position = Vec2(1032,-505),size=Vec2(30,45),texture="Assets/Textures/Transition/GameOver/e.raw")
         self.transition_collection.Entity("r",layer=layers.background,position = Vec2(1066,-505),size=Vec2(30,12),texture="Assets/Textures/Transition/GameOver/r.raw")
-        self.transition_collection.Entity("!",layer=layers.background,position = Vec2(1100,-490),size=Vec2(30,80),texture="Assets/Textures/Transition/GameOver/!.raw")
+        self.transition_collection.Entity("!",layer=layers.background,position = Vec2(1100,-490),size=Vec2(30,80),texture="Assets/Textures/Transition/GameOver/!.raw.corrupted")
         
         
     def update(self,_):

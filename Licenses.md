@@ -8,3 +8,4 @@ List of licenses used for third-party ressources in this project:
 - Dialogue Box Background: [Itch.io Page](https://2bitcrook.itch.io/gameboy-dialogue-frames)
 - Heart Image: [Rawpixel Page](https://www.rawpixel.com/image/6285666/png-sticker-heart)
 - Glitch Animation: [Pinterest](https://fr.pinterest.com/pin/627548529358587736/)
+- Heartbeat function: [Reddit Link](https://www.reddit.com/r/Physics/comments/30royq/comment/m9ep9mw/)
