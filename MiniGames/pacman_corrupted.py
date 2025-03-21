@@ -4,7 +4,7 @@ import random
 
 from Transitions.pacman_death import PacManDeathTransition
 
-class PacMan():
+class PacManCorrupted():
 
     def __init__(self,core:Core):
         self._core = core
@@ -30,10 +30,10 @@ class PacMan():
     def _setup_map(self):
         self.map = Collection(self._core)
         self.map.Entity(name="bg_0",size = Vec2(1920,1080),position=Vec2(0,0),color=Color(0,0,0),layer=layers.background)
-        self.map.Entity("map_bg",size=Vec2(720,1080),position = Vec2(600,0),texture="Assets/Textures/Minigames/PacMan/map_big.raw", layer=layers.background)
+        self.map.Entity("map_bg",size=Vec2(720,1080),position = Vec2(600,0),texture="Assets/Textures/Minigames/PacMan/map_big.raw.corrupted", layer=layers.background)
 
     def _setup_player(self):
-        self.map.Entity("player",size=Vec2(20,20),position =Vec2(610,10),color=Color(255,0,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/pac_open_right.raw")
+        self.map.Entity("player",size=Vec2(100,100),position =Vec2(610,10),color=Color(255,0,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/heart.raw")
         self.player_position = Vec2(1,1)
         self.player_screen_position = Vec2(610,10)
         self.player_target = Vec2(610,10)
@@ -45,23 +45,15 @@ class PacMan():
          self.ghosts_position = {"a":Vec2(35,43),"b":Vec2(35,43),"c":Vec2(35,43),"d":Vec2(35,43)}
          self.ghost_last_direction = {"a":1,"b":2,"c":3,"d":4}
          self.ghosts = Collection(self._core)   
-         self.ghosts.Entity("a",size=Vec2(20,20),position=Vec2(870,530),color=Color(255,0,255),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/ghost_a_1.raw")
-         self.ghosts.Entity("b",size=Vec2(20,20),position=Vec2(920,530),color=Color(255,0,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/ghost_b_1.raw")
-         self.ghosts.Entity("c",size=Vec2(20,20),position=Vec2(980,530),color=Color(0,255,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/ghost_c_1.raw")
-         self.ghosts.Entity("d",size=Vec2(20,20),position=Vec2(1030,530),color=Color(0,0,255),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/ghost_d_1.raw")
-         self.ghosts_textures_1 = {"a":Texture("Assets/Textures/Minigames/PacMan/ghost_a_1.raw",self._core),
-                                 "b":Texture("Assets/Textures/Minigames/PacMan/ghost_b_1.raw",self._core),
-                                 "c":Texture("Assets/Textures/Minigames/PacMan/ghost_c_1.raw",self._core),
-                                 "d":Texture("Assets/Textures/Minigames/PacMan/ghost_d_1.raw",self._core)}
-         
-         self.ghosts_textures_2 = {"a":Texture("Assets/Textures/Minigames/PacMan/ghost_a_2.raw",self._core),
-                                 "b":Texture("Assets/Textures/Minigames/PacMan/ghost_b_2.raw",self._core),
-                                 "c":Texture("Assets/Textures/Minigames/PacMan/ghost_c_2.raw",self._core),
-                                 "d":Texture("Assets/Textures/Minigames/PacMan/ghost_d_2.raw",self._core)}
+         self.ghosts.Entity("a",size=Vec2(20,20),position=Vec2(870,530),color=Color(255,0,255),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/sprite_0.raw")
+         self.ghosts.Entity("b",size=Vec2(20,20),position=Vec2(920,530),color=Color(255,0,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/sprite_0.raw")
+         self.ghosts.Entity("c",size=Vec2(20,20),position=Vec2(980,530),color=Color(0,255,0),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/sprite_0.raw")
+         self.ghosts.Entity("d",size=Vec2(20,20),position=Vec2(1030,530),color=Color(0,0,255),layer=layers.background,texture="Assets/Textures/Minigames/PacMan/sprite_0.raw")
+
 
     def _get_pac_texture(self):
         value = "open" if (self._core.tick_count//24) % 2 == 0 else "close"
-        return f"Assets/Textures/Minigames/PacMan/pac_{value}_{self.player_rotation}.raw"
+        return f"Assets/Textures/Minigames/PacMan/heart.raw"
 
     def _get_vector(self,rotation):
         if rotation == 1:
@@ -129,17 +121,14 @@ class PacMan():
         self.ghosts_position["d"] += self._get_vector(direction_d)
         self.ghosts.d.position = self._get_path_tile(self.ghosts_position["d"]) * 10 + Vec2(600, 0)
 
-        if (self._core.tick_count//16) % 2 == 0:
-            self.ghosts.a.texture = self.ghosts_textures_1["a"]
-            self.ghosts.b.texture = self.ghosts_textures_1["b"]
-            self.ghosts.c.texture = self.ghosts_textures_1["c"]
-            self.ghosts.d.texture = self.ghosts_textures_1["d"]
+        self.ghosts.a.texture = Texture(f"Assets/Textures/Minigames/PacMan/sprite_{(self._core.tick_count//8) % 8}.raw.corrupted",self._core)
+        self.ghosts.b.texture = Texture(f"Assets/Textures/Minigames/PacMan/sprite_{(self._core.tick_count//8) % 8}.raw.corrupted",self._core)
+        self.ghosts.c.texture = Texture(f"Assets/Textures/Minigames/PacMan/sprite_{(self._core.tick_count//8) % 8}.raw.corrupted",self._core)
+        self.ghosts.d.texture = Texture(f"Assets/Textures/Minigames/PacMan/sprite_{(self._core.tick_count//8) % 8}.raw.corrupted",self._core)
 
-        else:
-            self.ghosts.a.texture = self.ghosts_textures_2["a"]
-            self.ghosts.b.texture = self.ghosts_textures_2["b"]
-            self.ghosts.c.texture = self.ghosts_textures_2["c"]
-            self.ghosts.d.texture = self.ghosts_textures_2["d"]
+
+
+
 
         for i in self.ghosts.entity_list:
             entity = self.ghosts.entity_list[i]
@@ -157,7 +146,7 @@ class PacMan():
                 value = self._get_path_tile(Vec2(x,y))
                 if value.x != -1 and value.y != -1 and value.x * value.y % 8== 0:
                     self.countdown += 1
-                    self.coin.Entity(f"coin-{y}-{x}",size=Vec2(10,10),position =value * 10 + Vec2(605,5),color = Color(255,215,0),layer=layers.background)
+                    self.coin.Entity(f"coin-{y}-{x}",size=Vec2(10,10),position =value * 10 + Vec2(605,5),color = Color(255,87,51),layer=layers.background)
     
 
     def _handle_coins(self):
@@ -175,7 +164,7 @@ class PacMan():
             self.countdown -= 1
 
     def _position_player(self):
-        self.map.player.position = self.player_screen_position
+        self.map.player.position = self.player_screen_position - Vec2(40,40)
         self.player_screen_position = self.player_target 
 
     def _can_go(self):

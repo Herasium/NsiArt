@@ -19,7 +19,7 @@ class TextureLoader:
         file_list = []
         for root, _, files in os.walk(self._asset_path):
             for file in files:
-                if file.endswith(".raw"):
+                if file.endswith(".raw") or file.endswith(".raw.corrupted"):
                     file_list.append(os.path.join(root, file))
         self._path_list = file_list
         

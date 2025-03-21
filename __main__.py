@@ -7,11 +7,12 @@ from MiniGames.tree import Tree
 from MiniGames.road import Road
 from MiniGames.maze import Maze
 from MiniGames.pacman import PacMan
+from MiniGames.pacman_corrupted import PacManCorrupted
 
 
 class Game:
     def __init__(self, app: Core):
-        self.current_next = 3
+        self.current_next = 4
 
         self.app = app
         self._in_transition = False
@@ -139,6 +140,10 @@ class Game:
                 elif self.current_next == 3:
                     self.pacman = PacMan(self.app)
                     self.pacman.setup()
+                elif self.current_next == 4:
+                    self.corrupted = PacManCorrupted(self.app)
+                    self.corrupted.setup()
+
 
 
     def _update_cloud_positions(self):
