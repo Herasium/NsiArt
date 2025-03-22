@@ -4,7 +4,6 @@ import pygame
 import threading
 import numpy as np
 from HeraEngine.types.Vec2 import Vec2
-from line_profiler import profile
 
 class Window():
     def __init__(self, core,Size,cursor,keyboard):
@@ -43,7 +42,7 @@ class Window():
         if self.ready:
             self.buffer.fill(0x000000)
 
-    @profile
+
     def update(self):
         if self.ready:
             buffer_np = np.frombuffer(self.buffer, dtype=np.uint32).reshape(self.Size.y, self.Size.x)

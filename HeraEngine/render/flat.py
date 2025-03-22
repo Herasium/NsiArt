@@ -3,14 +3,13 @@ from HeraEngine.types.Font import Font
 
 from HeraEngine.childs.Entity import Entity
 import numpy as np
-from line_profiler import profile
 
 class FlatRenderer():
     def __init__(self,core):
         self.core = core
 
     
-    @profile
+
     def render(self, size: Vec2,target:Vec2, buffer, entityList: list[Entity], z: int):
         buffer_np = np.frombuffer(buffer, dtype=np.uint32).reshape(size.y, size.x)
        
@@ -61,7 +60,6 @@ class FlatRenderer():
             offset += font_size.x
             offset += font.offset.x
 
-    @profile
     def render_textured(self, entity, buffer_np, z, size, pos, ent_size):
         texture_data = entity.texture.data
         rotation = int(getattr(entity, 'rotation', 0)*10)/10

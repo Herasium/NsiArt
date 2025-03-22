@@ -1,9 +1,6 @@
-<<<<<<< HEAD:modules/render/__init__.py
 import modules.pygame_adapter as pygame_adapter
 from threading import Thread
 import modules.render.obj_parser
-=======
->>>>>>> db25edab90dd252b5997c8038a951215a8845c1a:HeraEngine/render/dimentional.py
 import time
 from tqdm import tqdm
 import random
@@ -16,7 +13,6 @@ from HeraEngine.types.Vec3 import Vec3
 window = pygame_adapter.Window("")
 window.Size = (500,500)
 
-@profile
 def line(x0, y0, x1, y1, color):
     dx = x1 - x0
     dy = y1 - y0
@@ -168,8 +164,7 @@ if __name__ == "__main__":
 
     import pygame_adapter
     from threading import Thread
-    import pygame
-    from line_profiler import profile    
+    import pygame  
     import obj_parser   
 
 

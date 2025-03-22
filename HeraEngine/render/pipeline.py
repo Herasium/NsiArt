@@ -4,7 +4,7 @@ from HeraEngine.types.Vec2 import Vec2
 from HeraEngine.render.flat import FlatRenderer
 
 import ctypes
-from line_profiler import profile
+
 
 class PipeLine():
     def __init__(self,core):
@@ -25,9 +25,9 @@ class PipeLine():
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    @profile
+
     def clear_buffer(self): 
         self.BackgroundBuffer = (ctypes.c_uint32 * (self.size.y*self.size.x))()
-    @profile
+
     def render(self):
         self.BackgroundBuffer = self.FlatRenderer.render(self.size,self.target_size,self.BackgroundBuffer,self.EntityList[4],-999)

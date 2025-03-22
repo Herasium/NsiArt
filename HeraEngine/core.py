@@ -1,7 +1,6 @@
 import threading
 import traceback
 import time
-from line_profiler import profile
 import os
 import ctypes
 
@@ -165,7 +164,6 @@ Powered by
             self.error(message,2)
             raise BaseException(f"Failed to start: {message}")
 
-    @profile
     def run_updates(self):
         while self.running:
             try:
