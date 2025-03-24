@@ -313,4 +313,4 @@ class PacManCorrupted():
             self.map.quit()
             self.ghosts.quit()
             self.coin.quit()
-            HeartStop(self._core)
+            HeartStop(self._core,self.countdown <= 0)

@@ -8,17 +8,19 @@ from MiniGames.road import Road
 from MiniGames.maze import Maze
 from MiniGames.pacman import PacMan
 from MiniGames.pacman_corrupted import PacManCorrupted
+from MiniGames.puzzle import Puzzle
 
 
 class Game:
-    def __init__(self, app: Core):
-        self.current_next = 4
+    def __init__(self, app: Core,corrupted = False):
+        self.current_next = 3
 
         self.app = app
+        self.corrupted = corrupted
         self._in_transition = False
         self._setup_app_properties()
         self._create_attributes()
-        self._create_collections()
+        self._create_collections() 
         self._setup_entities()
         self._setup_event_handlers()
 
@@ -60,10 +62,14 @@ class Game:
         self._add_technical_entities()
 
     def _add_background_entities(self):
-        textures = [
-            ("background", "1.raw"), ("stars", "2.raw"),("behind_clouds_copy", "3.raw"),   ("behind_clouds", "3.raw"),("front_clouds", "4.raw"),("front_clouds_copy", "4.raw")
-        ]
-           
+        if self.corrupted:
+            textures = [
+                ("background", "1.raw.corrupted"), ("stars", "2.raw.corrupted"),("behind_clouds_copy", "3.raw.corrupted"),   ("behind_clouds", "3.raw.corrupted"),("front_clouds", "4.raw.corrupted"),("front_clouds_copy", "4.raw.corrupted")
+            ]
+        else:
+            textures = [
+                ("background", "1.raw"), ("stars", "2.raw"),("behind_clouds_copy", "3.raw"),   ("behind_clouds", "3.raw"),("front_clouds", "4.raw"),("front_clouds_copy", "4.raw")
+            ]
             
         positions = [Vec2(0, 0)] * 4 + [Vec2(1920, 0)] * 2
         
@@ -74,11 +80,19 @@ class Game:
                 texture=f"Assets/Textures/Clouds/4/{tex}")
 
     def _add_menu_entities(self):
-        menu_items = [
-            ("main_menu_title", 630, 81, 40, 285, "title.raw"),
-            ("main_menu_play", 200, 63, 40, 600, "play.raw"),
-            ("main_menu_quit", 266, 80, 40, 685, "quit.raw")
-        ]
+        if self.corrupted:
+            menu_items = [
+                ("main_menu_title", 630, 81, 40, 285, "title.raw.corrupted"),
+                ("main_menu_play", 200, 63, 40, 600, "play.raw.corrupted"),
+                ("main_menu_quit", 266, 80, 40, 685, "quit.raw.corrupted")
+            ]
+        
+        else:
+            menu_items = [
+                ("main_menu_title", 630, 81, 40, 285, "title.raw"),
+                ("main_menu_play", 200, 63, 40, 600, "play.raw"),
+                ("main_menu_quit", 266, 80, 40, 685, "quit.raw")
+            ]
         
         for name, w, h, x, y, tex in menu_items:
             self.bg_collection.Entity(
@@ -146,9 +160,12 @@ class Game:
                     self.maze = Maze(self.app)
                     self.maze.setup()
                 elif self.current_next == 3:
+                    self.puzzle = Puzzle(self.app)
+                    self.puzzle.setup()    
+                elif self.current_next == 4:
                     self.pacman = PacMan(self.app)
                     self.pacman.setup()
-                elif self.current_next == 4:
+                elif self.current_next == 5:
                     self.corrupted = PacManCorrupted(self.app)
                     self.corrupted.setup()
 

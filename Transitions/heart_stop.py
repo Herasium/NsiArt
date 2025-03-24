@@ -4,8 +4,9 @@ from HeraEngine import *
 from Transitions.game_over_glitched import GameOverGlitched
 
 class HeartStop():
-    def __init__(self,core:Core):
+    def __init__(self,core:Core,corrupted = False):
         self.core = core
+        self.corrupted = corrupted
         self.bar = Collection(self.core)
         self.bar.Entity("back",size=Vec2(1920,1080),position=Vec2(0,0),layer=layers.background,color=Color(0,0,0))
         for x in range(960):
@@ -48,6 +49,6 @@ class HeartStop():
             getattr(self.bar,f"b{self.current}").position = Vec2(-100,-100)
             if self.current == 480:
                 self.bar.quit()
-                GameOverGlitched(self.core,0)
+                GameOverGlitched(self.core,0,self.corrupted)
             
         self.tick += 1
