@@ -301,6 +301,8 @@ class PacManCorrupted():
             self.life -= 0.5
             self._move_player()
 
+        print(self._core.tick_count % int(self._core.average_fps / 20))
+
         if self._core.tick_count % int(self._core.average_fps / 10) == 0:
             self._moves_ghosts()
 
