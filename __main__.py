@@ -13,7 +13,7 @@ from MiniGames.puzzle import Puzzle
 
 class Game:
     def __init__(self, app: Core,corrupted = False):
-        self.current_next = 3
+        self.current_next = 0
 
         self.app = app
         self.corrupted = corrupted

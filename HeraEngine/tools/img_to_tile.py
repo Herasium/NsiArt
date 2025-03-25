@@ -23,4 +23,4 @@ def split_image(image_path, grid_size):
     
     print(f"Image split into {grid_size}x{grid_size} and saved in '{output_folder}'")
 
-split_image("Assets/Textures/Minigames/Puzzle/nerd.png", 3)
+split_image("Assets/Textures/Minigames/Puzzle/prune.png", 3)

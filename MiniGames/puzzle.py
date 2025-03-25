@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from HeraEngine import *
+from Transitions.puzzle_win import PuzzleWin
 
 class Puzzle():
     
@@ -8,7 +9,7 @@ class Puzzle():
         self.core = core
         self.core.update = self.update
         self.tile_size = Vec2(360,360)
-        self.saves = {"1":[[2,3,6],[1,5,9],[4,0,7]],"2":[[4,2,1],[3,5,6],[7,0,9]],"3":[[9,7,4],[3,1,6],[2,0,5]]}
+        self.saves = {"1":[[2,3,6],[1,5,9],[4,0,7]],"2":[[4,2,1],[3,5,6],[7,0,9]],"3":[[9,7,4],[3,1,6],[2,0,5]],"4":[[1,2,3],[4,5,6],[7,9,0]]}
         self.level = 1
         self.check_sorted_matrix = lambda matrix: (filtered := [num for row in matrix for num in row if num != 0]) == sorted(filtered)
         
@@ -17,8 +18,8 @@ class Puzzle():
             matrix = np.array(self.saves[str(self.level)])
         else:
             matrix = np.arange(1, 10).reshape(3, 3) 
-        #matrix = np.random.permutation(matrix.flatten()).reshape(3, 3)  
-        matrix[2, 1] = 0
+            #matrix = np.random.permutation(matrix.flatten()).reshape(3, 3)  
+            matrix[2, 1] = 0
         self.matrix = matrix
 
         
@@ -31,11 +32,12 @@ class Puzzle():
         self.map.Entity(f"cursor",size=Vec2(0,0),position=Vec2(0,0),color=Color(0,0,0),layer=layers.background)
         self.map.Text(f"lvl_display",size=Vec2(0,0),position = Vec2(1600,20), font=self.core.monogram_big,text="Level 0",layer=layers.background)
         self.map.Text(f"count_display",size=Vec2(0,0),position = Vec2(1600,50), font=self.core.monogram_big,text="Moves 0",layer=layers.background)
+        self.map.Text(f"skip",size=Vec2(0,0),position = Vec2(1600,-80), font=self.core.monogram_big,text="Skip",layer=layers.background)
         self.map.cursor.hitbox.size = Vec2(1, 1)
         self.blank = Vec2(1,2)
         
         self.texture_list = []
-        self.folders = ["sunny","road","pac"]
+        self.folders = ["sunny","road","pac","prune"]
         
 
         for y in range(3):
@@ -77,10 +79,14 @@ class Puzzle():
         return tuple(np.argwhere(self.matrix == 0)[0]) == (2,1) and self.check_sorted_matrix(self.matrix) #Check that the zero is back where it should be and that the matrix is sorted.
 
     def _win(self):
-        self.map.quit()
-        self.level += 1
-        self._setup_map()
-        self.move_count = 0
+        if self.level < 4:
+                
+            self.map.quit()
+            self.level += 1
+            self._setup_map()
+            self.move_count = 0
+        else:
+            PuzzleWin(self.map,self.core)
     
     def setup(self):
         self.move_count = 0
@@ -99,6 +105,10 @@ class Puzzle():
                         self.move_count += 1
                         if self._check_order():
                             self._win()
+            if i == "skip":
+                if self.map.cursor.collide(entity):
+                    self._win()
+                
                         
         
     def update(self,_):
@@ -106,3 +116,7 @@ class Puzzle():
         self.map.lvl_display.text = f"Level {self.level-1}"
         self.map.count_display.text = f"Moves {self.move_count}"
         self.map.cursor.position = self.core.cursor.position
+        
+        if self.move_count > 100:
+            self.map.skip.position = Vec2(1600,80)
+            
