@@ -2,8 +2,9 @@
 from HeraEngine import *
 
 class YouWon:
-    def __init__(self,core: Core):
+    def __init__(self,core: Core,next = 0):
         self._core = core
+        self.next = next
         self._core.update = self.update
         self.in_transition = True
         self._setup_transition()
@@ -31,9 +32,14 @@ class YouWon:
         if self.in_transition == True:
             self.update_transition()
         else:
+
+            self._core.to_dream = self.next
             self._core.log.INFO("Re-Launching Menu.")
-            self._core.game.__init__(self._core)
             self._core.update = self._core.game.update
+            self._core.game.__init__(self._core)
+            
+ 
+
     
     
     def update_transition(self):

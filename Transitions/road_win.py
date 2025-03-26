@@ -50,7 +50,7 @@ class RoadWin:
             self._map.player.texture = self.amb_texture
         else:
             self._map.quit()
-            YouWon(self._core)
+            YouWon(self._core,3)
 
         self.tick += 1
         

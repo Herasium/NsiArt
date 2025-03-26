@@ -40,7 +40,7 @@ class PuzzleWin:
 
         elif self.tick < 300:
             self.map.quit()
-            YouWon(self._core)
+            YouWon(self._core,4)
 
         self.tick += 1
         

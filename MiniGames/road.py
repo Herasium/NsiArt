@@ -8,6 +8,7 @@ class Road():
 
     def __init__(self,core: Core):
         self._core = core
+        self._core.next = 1
         self._core.log.INFO("Created ROAD.")
         self.invincible = False
 
@@ -33,11 +34,11 @@ class Road():
         self.obstacle_tick = 0
 
     def _spawn_obstacle(self):
-        self.spawn_delay = int(max(self.spawn_delay-10,700)*10)/10
-        self.obstacles_speed = int(min(6,self.obstacles_speed+0.1)*10)/10
+        self.spawn_delay = int(max(self.spawn_delay-10,500)*10)/10
+        self.obstacles_speed = min(7,self.obstacles_speed+0.1)
         row = random.randint(0,2)
         type = random.randint(int(min(self.score/3,10)),10) == 10
-        if type and self.obstacles_speed > 3.5:
+        if type and self.obstacles_speed > 6.5:
             self.obstacles.Entity(name=f"obastacle-{self._core.tick_count}",position=Vec2(160*row + 720+25,-300),size=Vec2(100,100),texture=f"Assets/Textures/Minigames/Road/obstacles/hospital/sprite_{random.randint(0,7)}.raw",layer=layers.background)
             getattr(self.obstacles,f"obastacle-{self._core.tick_count}").row = row
         else:
@@ -54,7 +55,7 @@ class Road():
             if entity.position.y > 1200:
                 to_remove.append(i)
 
-            entity.position = entity.position + Vec2(0,int(self.obstacles_speed)*(self._core.average_fps/140))
+            entity.position = entity.position + Vec2(0,int((int(self.obstacles_speed))))
 
         for i in to_remove:
             self.score += 1
@@ -68,7 +69,7 @@ class Road():
 
 
     def _update_road(self):
-        self.move_tick += (int(self.obstacles_speed)*(self._core.average_fps/140))
+        self.move_tick += int((int(self.obstacles_speed)))
         d = (int(self.move_tick)) % 1080
         t = (int(self.move_tick) % 1620)/1.5
 

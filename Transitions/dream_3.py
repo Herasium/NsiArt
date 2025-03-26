@@ -1,6 +1,6 @@
 
 from HeraEngine import *
-from MiniGames.maze import Maze
+from MiniGames.puzzle import Puzzle
 
 class Dream3:
     def __init__(self,core: Core):
@@ -32,9 +32,9 @@ class Dream3:
         if self.in_transition == True:
             self.update_transition()
         else:
-            self._core.log.INFO("Launching Maze.")
-            self._core.Maze = Maze(self._core)
-            self._core.Maze.setup()
+            self._core.log.INFO("Launching Puzzle.")
+            self._core.puzzle = Puzzle(self._core)
+            self._core.puzzle.setup()
 
     def update_transition(self):
         elapsed_ticks = self._core.tick_count - self.start_count

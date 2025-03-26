@@ -30,6 +30,7 @@ class Tree():
         self.normal_texture = Texture("Assets/Textures/Minigames/Tree/prune.raw",self._core)
         self.jump_texture = Texture("Assets/Textures/Minigames/Tree/prune_jump.raw",self._core)
 
+        self._core.next = 0
         self._core.log.INFO("Created TREE.")
 
     def setup(self):

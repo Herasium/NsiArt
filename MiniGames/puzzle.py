@@ -12,6 +12,7 @@ class Puzzle():
         self.saves = {"1":[[2,3,6],[1,5,9],[4,0,7]],"2":[[4,2,1],[3,5,6],[7,0,9]],"3":[[9,7,4],[3,1,6],[2,0,5]],"4":[[1,2,3],[4,5,6],[7,9,0]]}
         self.level = 1
         self.check_sorted_matrix = lambda matrix: (filtered := [num for row in matrix for num in row if num != 0]) == sorted(filtered)
+        self.core.next = 3
         
     def _generate_matrix(self):
         if str(self.level) in self.saves:

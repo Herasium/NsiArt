@@ -302,6 +302,7 @@ class PacMan():
         self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram,text="Hello World",layer=layers.background)
         self._core.update = self.update
         self._core.Pipeline.clear_buffer()
+        self._core.next = 4
 
     def update(self,_):
         self._position_player()

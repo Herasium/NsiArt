@@ -9,13 +9,18 @@ from MiniGames.maze import Maze
 from MiniGames.pacman import PacMan
 from MiniGames.pacman_corrupted import PacManCorrupted
 from MiniGames.puzzle import Puzzle
-
+from Transitions.dream_2 import Dream2
+from Transitions.dream_3 import Dream3
+from Transitions.dream_4 import Dream4
+from Transitions.dream_4_corrupted import Dream45
 
 class Game:
     def __init__(self, app: Core,corrupted = False):
-        self.current_next = 0
+        
 
         self.app = app
+        self.current_next = getattr(self.app,"next",0)
+
         self.corrupted = corrupted
         self._in_transition = False
         self._setup_app_properties()
@@ -24,8 +29,28 @@ class Game:
         self._setup_entities()
         self._setup_event_handlers()
 
+        if getattr(self.app,"to_dream",0) != 0:
+            self.technical_collection.quit()
+            self.bg_collection.quit()
+            match int(getattr(self.app,"to_dream",0)):
+                case 2:
+                    
+                    Dream2(self.app)
+                case 3:
+
+                    Dream3(self.app)
+                case 4:
+    
+                    Dream4(self.app)
+                case 45:
+                
+                    Dream45(self.app)
+
+            self.app.to_dream = 0
+
+
     def _setup_app_properties(self):
-        self.app.window.Title = "My Super Game"
+        self.app.window.Title = "Once uppon a Dream."
         self.app.clear = False
         self.app.fullscreen = True
 
@@ -154,20 +179,20 @@ class Game:
                     self.tree = Tree(self.app)
                     self.tree.setup()
                 elif self.current_next == 1:
-                    self.road = Road(self.app)
-                    self.road.setup()
+                    self.road = Dream2(self.app)
+           
                 elif self.current_next == 2:
-                    self.maze = Maze(self.app)
-                    self.maze.setup()
-                elif self.current_next == 3:
-                    self.puzzle = Puzzle(self.app)
-                    self.puzzle.setup()    
+                    self.maze = Dream3(self.app)
+                    
                 elif self.current_next == 4:
-                    self.pacman = PacMan(self.app)
-                    self.pacman.setup()
-                elif self.current_next == 5:
-                    self.corrupted = PacManCorrupted(self.app)
-                    self.corrupted.setup()
+                    self.pacman = Dream4(self.app)
+                
+                elif self.current_next == 45:
+                    self.corrupted = Dream45(self.app)
+              
+                else:   
+                    self.tree = Tree(self.app)
+                    self.tree.setup()
 
 
 

@@ -10,6 +10,7 @@ class PacManCorrupted():
     def __init__(self,core:Core):
         self._core = core
         self._tile_size = Vec2(20,20)
+        self._core.next = 45
         self._collision_map_texture = Texture("Assets/Textures/Minigames/PacMan/collision_map.raw",self._core)
 
     def _debug_collisions(self):

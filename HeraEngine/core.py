@@ -164,44 +164,49 @@ Powered by
             self.error(message,2)
             raise BaseException(f"Failed to start: {message}")
 
-    def run_updates(self):
+    def run_updates(self, max_fps=100):
+
         while self.running:
             try:
-
-                #Actual code that does everything, break this and everything explode.
                 start_time = time.time()
+
+                # Actual update and rendering logic
                 self.cursor.update()
                 self.keyboard.update()
-                self.update(self) #Run the update function
-                self.Pipeline.update(EntityList=self.EntityList) #Updates the pipeline with the existing entites, including positions and stuff because it might have changed 
-                self.Pipeline.render() #Drawing the screen
-                self.window.buffer = self.Pipeline.BackgroundBuffer #Updating the window data
-                self.window.update() #Drawing the window
+                self.update(self)  # Run the update function
+                self.Pipeline.update(EntityList=self.EntityList)  # Update pipeline
+                self.Pipeline.render()  # Render the frame
+                self.window.buffer = self.Pipeline.BackgroundBuffer  # Update window data
+                self.window.update()  # Draw window
+
                 if self.clear:
-                    self.Pipeline.clear_buffer() #If background always present, not used, add 15% to fps, pls do not set self.clear to True unless you hate performance
+                    self.Pipeline.clear_buffer()  # Clear buffer if necessary
+
                 self.keyboard.last_pressed = []
+                
+                # Calculate execution time
                 end_time = time.time()
-
-
                 execution_time = end_time - start_time
-                execution_time += 0.00000001 #Prevent Divisions by 0 in fps calculation
-                self.fps = 1/execution_time
+                execution_time = max(execution_time, 1e-8)  # Prevent division by zero
+
+                self.fps = 1 / execution_time
                 self.tick_count += self.tick_update
                 self.fps_total += self.fps
                 self.fps_tick += 1
-                
+
                 if self.fps_tick > 20:
                     self.average_fps = self.fps_total / self.fps_tick
                     self.fps_total = 0
                     self.fps_tick = 0
+
             except SystemExit:
                 raise
-            except Exception as e: 
+            except Exception as e:
                 tb = traceback.extract_tb(e.__traceback__)[-1]
                 message = f"{e} - L.{tb.lineno} - {tb.filename}"
                 traceback.print_exc()
                 self.log.ERROR(f"Failed to update: {message}")
-                self.error(message,1)
+                self.error(message, 1)
                 raise BaseException(f"Failed to update: {message}")
 
     def error(self,error,code):
