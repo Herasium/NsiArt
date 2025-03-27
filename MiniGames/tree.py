@@ -6,6 +6,7 @@ from HeraEngine import *
 from Transitions.game_over import GameOver
 from Transitions.game_over_glitched import GameOverGlitched
 
+#Ce fichier, cette class c'est une anarchie, avant que je commence a tt diviser en transition histoire de tt simplifier, la c'est un bazare, faut as trop y toucher.
 
 class Tree():
     def __init__(self,core: Core):

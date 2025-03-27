@@ -40,11 +40,16 @@ class FlatRenderer():
         
         font_size = font.size
         offset = 0
+        y_offset = 0
 
         for i in entity.text:
+            if i == "ٲ":
+                offset = 0
+                y_offset += font.size.y
+                continue
             texture_data = font.get_char(i).data
         
-            buf_y_start, buf_y_end = np.clip([pos.y+ font.offset.y, pos.y + font_size.y + font.offset.y], 0, size.y)
+            buf_y_start, buf_y_end = np.clip([pos.y+ font.offset.y + y_offset, pos.y + font_size.y + font.offset.y + y_offset], 0, size.y)
             buf_x_start, buf_x_end = np.clip([pos.x + offset, pos.x + font_size.x + offset], 0, size.x)
     
             small_y_start = max(0, -pos.y)

@@ -2,6 +2,8 @@
 from HeraEngine import *
 from MiniGames.road import Road
 from Transitions.dream_2 import Dream2
+from Cutscenes.scene_0 import Scene0
+
 class GameOverGlitched:
     def __init__(self,core: Core,cinematicId: int,corrupted = False):
         self._core = core
@@ -42,8 +44,8 @@ class GameOverGlitched:
                 self._core.game.__init__(self._core,self.corrupted)
                 self._core.update = self._core.game.update
             elif self._id == 1:
-                self._core.dream2 = Dream2(self._core)
-
+                self._core.scene_0 = Scene0(self._core)
+                self._core.scene_0.setup()
 
         
     
