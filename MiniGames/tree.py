@@ -130,7 +130,7 @@ class Tree():
 
     def _setup_branch(self):
         self.branch_collection = Collection(self._core)
-        self.branch_collection.Text("position_debug",layer=layers.background,font=self._core.monogram,size=Vec2(100, 28), position=Vec2(0, 0),text="Hello Wotld")
+        self.branch_collection.Entity("position_debug",layer=layers.background,size=Vec2(0, 0), position=Vec2(-1000, -1000))
         for i in range(len(self._branch_list)-1):
             value = self._branch_list[i]
             if value:

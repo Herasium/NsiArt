@@ -149,7 +149,7 @@ class PacManCorrupted():
             for x in range(self._path_grid_x.shape[1]):
                 value = self._get_path_tile(Vec2(x,y))
                 if value.x != -1 and value.y != -1 and value.x * value.y % 8== 0:
-                    self.countdown += 1
+                    self.countdown += 0
                     self.coin.Entity(f"coin-{y}-{x}",size=Vec2(10,10),position =value * 10 + Vec2(605,5),color = Color(255,0,0),layer=layers.background)
     
 
@@ -291,7 +291,7 @@ class PacManCorrupted():
         self._setup_path_grid()
         self._setup_coins()
         self._setup_ghosts()
-        self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram_corrupted,text="Hello World",layer=layers.background)
+        self.map.Entity("debug_text",size=Vec2(0, 0), position=Vec2(-1000, -1000),layer=layers.background)
         self._core.update = self.update
         self._core.Pipeline.clear_buffer()
         self.life = 100
@@ -301,8 +301,6 @@ class PacManCorrupted():
         if self._core.tick_count % int(self._core.average_fps / 20) == 0:
             self.life -= 0.5
             self._move_player()
-
-        print(self._core.tick_count % int(self._core.average_fps / 20))
 
         if self._core.tick_count % int(self._core.average_fps / 10) == 0:
             self._moves_ghosts()
@@ -317,3 +315,4 @@ class PacManCorrupted():
             self.ghosts.quit()
             self.coin.quit()
             HeartStop(self._core,self.countdown <= 0)
+            

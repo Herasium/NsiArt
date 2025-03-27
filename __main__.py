@@ -13,6 +13,10 @@ from Transitions.dream_2 import Dream2
 from Transitions.dream_3 import Dream3
 from Transitions.dream_4 import Dream4
 from Transitions.dream_4_corrupted import Dream45
+from Cutscenes.scene_1 import Scene1
+from Cutscenes.scene_2 import Scene2
+from Cutscenes.scene_3 import Scene3
+from Cutscenes.scene_4 import Scene4
 
 class Game:
     def __init__(self, app: Core,corrupted = False):
@@ -20,6 +24,7 @@ class Game:
 
         self.app = app
         self.current_next = getattr(self.app,"next",0)
+        self.sound = Sound("Assets/Audio/musique.mp3")
 
         self.corrupted = corrupted
         self._in_transition = False
@@ -29,24 +34,23 @@ class Game:
         self._setup_entities()
         self._setup_event_handlers()
 
+
         if getattr(self.app,"to_dream",0) != 0:
             self.technical_collection.quit()
             self.bg_collection.quit()
             match int(getattr(self.app,"to_dream",0)):
                 case 2:
-                    
                     Dream2(self.app)
                 case 3:
-
-                    Dream3(self.app)
+                    Scene1(self.app).setup()
                 case 4:
-    
-                    Dream4(self.app)
-                case 45:
-                
-                    Dream45(self.app)
+                    Scene2(self.app).setup()
+                case 45:             
+                    Scene3(self.app).setup()
 
             self.app.to_dream = 0
+
+        
 
 
     def _setup_app_properties(self):
@@ -109,7 +113,6 @@ class Game:
             menu_items = [
                 ("main_menu_title", 630, 81, 40, 285, "title.raw.corrupted"),
                 ("main_menu_play", 200, 63, 40, 600, "play.raw.corrupted"),
-                ("main_menu_quit", 266, 80, 40, 685, "quit.raw.corrupted")
             ]
         
         else:
@@ -149,8 +152,9 @@ class Game:
 
     def on_click(self, cursor):
         if not self._in_transition:
-            if self.technical_collection.cursor_tracker.collide(self.bg_collection.main_menu_quit):
-                self.app.quit()
+            if getattr(self.bg_collection,"main_menu_quit",None) != None:
+                if self.technical_collection.cursor_tracker.collide(self.bg_collection.main_menu_quit):
+                    self.app.quit()
             if self.technical_collection.cursor_tracker.collide(self.bg_collection.main_menu_play):
                 self._in_transition = True
                 self.start_count = self.app.tick_count
@@ -175,7 +179,9 @@ class Game:
             else:
                 self.technical_collection.quit()
                 self.bg_collection.quit()
-                if self.current_next == 0:
+                if self.corrupted:
+                    Scene4(self.app).setup()
+                elif self.current_next == 0:
                     self.tree = Tree(self.app)
                     self.tree.setup()
                 elif self.current_next == 1:

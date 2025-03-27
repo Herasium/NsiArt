@@ -51,6 +51,6 @@ def process_image_files(root_folder):
             f.write(corrupted_data)
 
 if __name__ == "__main__":
-    target_folder = "Assets/Textures/Minigames"
+    target_folder = "Assets/Textures/Cutscenes"
     process_image_files(target_folder)
     print("\nImage processing completed successfully.")

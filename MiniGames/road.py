@@ -125,7 +125,7 @@ class Road():
         self._setup_map()
         self._setup_player()
         self._setup_obstacles()
-        self.map.Text("debug_text",position=Vec2(0,0),size=Vec2(100,100),font=self._core.monogram,text="Hello World",layer=layers.background)
+        self.map.Entity("debug_text",size=Vec2(0, 0), position=Vec2(-1000, -1000),layer=layers.background)
         self._core.log.INFO("Launched ROAD")  
 
     def update(self,_):

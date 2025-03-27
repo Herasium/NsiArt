@@ -2,6 +2,7 @@ from HeraEngine import *
 from Transitions.game_over import GameOver
 from Transitions.game_over_glitched import GameOverGlitched
 from Transitions.dream_4_corrupted import Dream45
+from Transitions.you_won import YouWon
 
 class PacManWin:
     
@@ -34,7 +35,7 @@ class PacManWin:
                 self._map.player.position = Vec2(-1000,-1000)
         elif self.tick >= 360:
                 self._map.quit()
-                Dream45(self._core)
+                YouWon(self._core,45)
 
 
         self.tick += 1

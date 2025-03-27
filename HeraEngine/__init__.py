@@ -2,6 +2,7 @@
 #Modules
 from HeraEngine.core import Core
 import HeraEngine.layers as layers
+from HeraEngine.sound import Sound
 #Childs
 from HeraEngine.childs.Entity import Entity
 from HeraEngine.childs.Text import Text
